@@ -1,0 +1,6 @@
+@CheersDb.Api_HostAddress = http://localhost:5104
+
+GET {{CheersDb.Api_HostAddress}}/producers/1
+Accept: application/json
+
+###
