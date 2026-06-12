@@ -18,15 +18,6 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Verify Directory.build.props
-        run: |
-          if [ -f "Directory.build.props" ]; then
-            echo "Directory.build.props found"
-            cat Directory.build.props
-          else
-            echo "ERROR: Directory.build.props not found in root"
-          fi
-
       - name: Restore
         run: dotnet restore
 
