@@ -24,7 +24,10 @@ jobs:
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
+      - name: Test
+        run: echo ${{ env.GITHUB_WORKSPACE }}
+
       - name: OpenAPI Analyzer
         uses: ApyGuard/apyguard_openapi_analysis@v1.0.9
         with:
-          file: /home/runner/work/CheersDb/CheersDb/src/CheersDb.Api/CheersDb.Api.json
+          file: ${{ env.GITHUB_WORKSPACE }}/src/CheersDb.Api/CheersDb.Api.json
