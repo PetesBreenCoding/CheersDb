@@ -28,4 +28,4 @@ jobs:
         uses: ApyGuard/apyguard_openapi_analysis@v1.0.9
         with:
           # Change this to your OpenAPI file path
-          file: obj\Release\net10.0\EndpointInfo\CheersDb.Api.json
+          file: $GITHUB_WORKSPACE\obj\Release\net10.0\EndpointInfo\CheersDb.Api.json
