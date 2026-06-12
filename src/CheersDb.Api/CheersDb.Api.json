@@ -1,0 +1,184 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "CheersDb API",
+    "description": "An API for retrieving and altering breweries on the CheersDb platform",
+    "version": "v1"
+  },
+  "paths": {
+    "/producers/{id}": {
+      "get": {
+        "tags": [
+          "Producers"
+        ],
+        "summary": "Retrieves details for a specific producer by id",
+        "operationId": "GetProducerDetails",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the producer to retrieve",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the requested producer in the response body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetProducerDetailsDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Indicates the requested producer was not found, or the URI is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GetProducerDetailsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "The id of the producer",
+            "format": "int32",
+            "example": 328
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "The name of the producer",
+            "example": "Rye River Brewing"
+          },
+          "links": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/LinkDto"
+            },
+            "description": "Links related to the producer, such as a self link to retrieve the producer details",
+            "example": [
+              {
+                "rel": "self",
+                "href": "/producers/328",
+                "method": "GET"
+              }
+            ]
+          }
+        },
+        "description": "Details about a producer"
+      },
+      "LinkDto": {
+        "required": [
+          "rel",
+          "href",
+          "method"
+        ],
+        "type": "object",
+        "properties": {
+          "rel": {
+            "type": "string",
+            "description": "The relationship of the link to the current resource",
+            "example": "self"
+          },
+          "href": {
+            "type": "string",
+            "description": "The URL of the link",
+            "example": "/producers/1"
+          },
+          "method": {
+            "type": "string",
+            "description": "The HTTP method for the link",
+            "example": "GET"
+          }
+        },
+        "description": "Represents a hypermedia link in the API response, providing information about the relationship, URL, and HTTP method for the link."
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instance": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      }
+    },
+    "responses": {
+      "InternalServerError": {
+        "description": "Indicates that an unexpected internal server error has occurred",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetails"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Producers"
+    }
+  ]
+}

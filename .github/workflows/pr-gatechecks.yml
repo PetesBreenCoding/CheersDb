@@ -27,4 +27,4 @@ jobs:
       - name: OpenAPI Analyzer
         uses: ApyGuard/apyguard_openapi_analysis@v1.0.9
         with:
-          file: /home/runner/work/CheersDb/CheersDb/src/CheersDb.Api/obj/Release/net10.0/EndpointInfo/CheersDb.Api.json
+          file: /home/runner/work/CheersDb/CheersDb/src/CheersDb.Api/CheersDb.Api.json
