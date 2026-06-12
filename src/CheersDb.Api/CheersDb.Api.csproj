@@ -1,9 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 	<PropertyGroup>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-		<TargetFramework>net10.0</TargetFramework>
 	</PropertyGroup>
 
 	<ItemGroup>
