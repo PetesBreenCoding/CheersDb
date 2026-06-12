@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: Build solution
+    name: Build Solution
     runs-on: ubuntu-latest
 
     steps:
@@ -24,10 +24,52 @@ jobs:
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
-      - name: Test
-        run: echo $env.GITHUB_WORKSPACE
+  analyze-openapi:
+    name: Analyze OpenAPI Spec
+    runs-on: ubuntu-latest
 
-      - name: OpenAPI Analyzer
+    steps:
+      - name: Analyze OpenAPI
+        id: analyze
         uses: ApyGuard/apyguard_openapi_analysis@v1.0.9
         with:
           file: ${{ github.workspace }}/src/CheersDb.Api/CheersDb.Api.json
+          output_format: json
+
+      - name: Display Results
+        run: |
+          echo "OpenAPI Analysis Results:"
+          echo "========================="
+          echo "Valid: ${{ steps.analyze.outputs.is_valid }}"
+          echo "Suggestions: ${{ steps.analyze.outputs.suggestions_count }}"
+          echo "Operations: ${{ steps.analyze.outputs.operations_count }}"
+          echo "Paths: ${{ steps.analyze.outputs.paths_count }}"
+          echo "Schemas: ${{ steps.analyze.outputs.schemas_count }}"
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const analysis = JSON.parse('${{ steps.analyze.outputs.analysis }}');
+            const comment = `## 🔍 OpenAPI Analysis Results
+
+            **Valid**: ${analysis.is_valid ? '✅' : '❌'}
+            **Total Suggestions**: ${analysis.suggestions ? Object.values(analysis.suggestions).reduce((total, suggestions) => total + suggestions.length, 0) : 0}
+            **Operations**: ${analysis.summary ? analysis.summary.operations_count : 0}
+            **Paths**: ${analysis.summary ? analysis.summary.paths_count : 0}
+            **Schemas**: ${analysis.summary ? analysis.summary.schemas_count : 0}
+
+            ${analysis.suggestions && Object.keys(analysis.suggestions).length > 0 ? 
+              Object.entries(analysis.suggestions).map(([category, suggestions]) => 
+                `### ${category} (${suggestions.length} issues)\n\n${suggestions.slice(0, 3).map(s => `- ${s}`).join('\n')}${suggestions.length > 3 ? `\n- ... and ${suggestions.length - 3} more` : ''}\n`
+              ).join('\n') : 
+              '### ✅ No suggestions found! Your OpenAPI specification looks great! 🎉'
+            }`;
+              
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
