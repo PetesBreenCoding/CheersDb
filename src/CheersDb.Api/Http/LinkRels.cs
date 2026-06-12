@@ -3,7 +3,7 @@
 /// <summary>
 /// Defines standard link relationship types for hypermedia links in the API responses, following common conventions for RESTful APIs.
 /// </summary>
-public static class LinkRelationships
+public static class LinkRels
 {
 	/// <summary>
 	/// Indicates an alternate representation of the resource.

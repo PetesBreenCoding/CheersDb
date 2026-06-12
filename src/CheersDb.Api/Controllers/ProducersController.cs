@@ -1,6 +1,7 @@
 using CheersDb.Api.Dtos;
 using CheersDb.Api.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Mime;
 
 namespace CheersDb.Api.Controllers;
 
@@ -9,6 +10,7 @@ namespace CheersDb.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("[controller]")]
+[Produces(MediaTypeNames.Application.Json)]
 public class ProducersController : ControllerBase
 {
 	/// <summary>
@@ -16,12 +18,9 @@ public class ProducersController : ControllerBase
 	/// </summary>
 	/// <param name="id">The id of the producer to retrieve</param>
 	/// <returns>The requested producer details</returns>
-	/// <response code="200">Returns the requested producer in the response body</response>
-	/// <response code="404">Indicates the requested producer was not found, or the URI is invalid</response>
 	[HttpGet("{id:int}", Name = nameof(GetProducerDetails))]
-	[ProducesResponseType(typeof(GetProducerDetailsDto), StatusCodes.Status200OK)]
-	[ProducesResponseType(StatusCodes.Status404NotFound)]
-	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+	[ProducesResponseType(typeof(GetProducerDetailsDto), StatusCodes.Status200OK, Description = "Returns the requested producer in the response body")]
+	[ProducesResponseType(StatusCodes.Status404NotFound, Description = "Indicates the requested producer was not found, or the URI is invalid")]
 	public IActionResult GetProducerDetails([FromRoute] int id)
 	{
 		return Ok(new GetProducerDetailsDto()
@@ -32,7 +31,7 @@ public class ProducersController : ControllerBase
 			[
 				new() 
 				{
-					Rel = LinkRelationships.Self,
+					Rel = LinkRels.Self,
 					Href = Url.RouteUrl(nameof(GetProducerDetails), new { id }) ?? string.Empty,
 					Method = HttpMethod.Get.ToString()
 				}

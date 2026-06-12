@@ -1,6 +1,8 @@
+using CheersDb.Api.Extensions;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+var appSettings = builder.Configuration.GetAppSettings();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -11,11 +13,12 @@ builder.Services.AddRouting(options =>
 	options.LowercaseQueryStrings = true;
 });
 
-builder.Services.AddOpenApi();
+builder.Services.AddConfiguredOpenApi(appSettings);
+
+builder.Services.AddSingleton(appSettings);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
 	app.MapOpenApi();
