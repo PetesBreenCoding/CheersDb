@@ -59,7 +59,7 @@ jobs:
             **Operations**: ${analysis.summary ? analysis.summary.operations_count : 0}
             **Paths**: ${analysis.summary ? analysis.summary.paths_count : 0}
             **Schemas**: ${analysis.summary ? analysis.summary.schemas_count : 0}
-
+            `;
 
               
             github.rest.issues.createComment({
