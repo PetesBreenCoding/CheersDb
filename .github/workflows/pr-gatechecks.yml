@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: Build Solution
+    #name: Build Solution
     runs-on: ubuntu-latest
 
     steps:
@@ -24,11 +24,11 @@ jobs:
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
-  analyze-openapi:
-    name: Analyze OpenAPI Spec
-    runs-on: ubuntu-latest
+  #analyze-openapi:
+    #name: Analyze OpenAPI Spec
+    #runs-on: ubuntu-latest
 
-    steps:
+    #steps:
       - name: Analyze OpenAPI
         id: analyze
         uses: ApyGuard/apyguard_openapi_analysis@v1.0.9
