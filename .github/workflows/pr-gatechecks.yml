@@ -39,9 +39,9 @@ jobs:
       - name: 👮 OpenAPI Analysis Quality Gate
         shell: pwsh
         run: |
-            $isValid = ${{ steps.analyze.outputs.is_valid }};
+            $isValid = "${{ steps.analyze.outputs.is_valid }}";
 
-            if ($isValid) {
+            if ($isValid -eq "true") {
               Write-Host "✅ OpenAPI analysis passed quality gate checks.";
               exit 0;
             }
