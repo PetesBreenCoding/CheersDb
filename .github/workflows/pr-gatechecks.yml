@@ -40,6 +40,7 @@ jobs:
         shell: pwsh
         run: |
             $isValid = "${{ steps.analyze.outputs.is_valid }}";
+            $rrr = "${{ steps.analyze.outputs.analysis }}";
             $isValid2 = "${{ steps.analyze.outputs.analysis.is_valid }}";
             $blah = "${{ steps.analyze.outputs.analysis.summary.schemas_count }}";
             $performanceCount = ${{ steps.analyze.outputs.analysis.analysis_categories.performance }};
