@@ -40,7 +40,7 @@ jobs:
         run: |
           echo "OpenAPI Analysis Results:"
           echo "========================="
-          echo ${{ steps.analyze.outputs }}
+          echo ${{ toJSON(steps.analyze.outputs) }}
 
       - name: 👮 OpenAPI Analysis Quality Gate
         shell: pwsh
