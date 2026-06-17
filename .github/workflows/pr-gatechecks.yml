@@ -36,6 +36,12 @@ jobs:
           file: ${{ github.workspace }}/src/CheersDb.Api/CheersDb.Api.json
           output_format: json
 
+      - name: Display Results
+        run: |
+          echo "OpenAPI Analysis Results:"
+          echo "========================="
+          echo ${{ steps.analyze.outputs }}
+
       - name: 👮 OpenAPI Analysis Quality Gate
         shell: pwsh
         run: |
@@ -43,10 +49,10 @@ jobs:
             $suggestionsCount = ${{ steps.analyze.outputs.suggestions_count }};
 
             if ($isValid -eq "true" -and $suggestionsCount -eq 0) {
-              Write-Host -ForegroundColor Green "✔️ OpenAPI analysis passed";
+              Write-Host "✔️ OpenAPI analysis passed";
               exit 0;
             }
             else {
-              Write-Host -ForegroundColor Red "❌ OpenAPI analysis failed";
+              Write-Host "❌ OpenAPI analysis failed";
               exit 1;
             }
