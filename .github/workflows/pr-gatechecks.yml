@@ -39,20 +39,24 @@ jobs:
       - name: 👮 OpenAPI Analysis Quality Gate
         shell: pwsh
         run: |
-            $isValid = "${{ steps.analyze.outputs.is_valid }}";
-            $status = "${{ steps.analyze.outputs.analysis.status }}";
-            $isValid2 = "${{ steps.analyze.outputs.analysis.is_valid }}";
-            $blah = "${{ steps.analyze.outputs.analysis.summary.schemas_count }}";
-            $performanceCount = ${{ steps.analyze.outputs.analysis.analysis_categories.performance }};
-            $versioningCount = ${{ steps.analyze.outputs.analysis.analysis_categories.versioning }};
-            $complianceCount = ${{ steps.analyze.outputs.analysis.analysis_categories.compliance }};
+            $isValid = '${{ steps.analyze.outputs.is_valid }}'
+            $analysisJson = '${{ steps.analyze.outputs.analysis }}'
 
-            if ($isValid -eq "true" -and $performanceCount -eq 0 -and $versioningCount -eq 0 -and $complianceCount -eq 0) {
-              Write-Host "✔️ OpenAPI analysis passed";
-              exit 0;
+            if ([string]::IsNullOrEmpty($analysisJson)) {
+                Write-Host '❌ OpenAPI analysis produced no analysis output';
+                exit 1;
             }
-            else {
-              Write-Host "❌ OpenAPI analysis failed";
-              Write-Host "${{ steps.analyze.outputs.analysis.analysis_categories }}"
-              exit 1;
+
+            $analysis = $analysisJson | ConvertFrom-Json
+            $performanceCount = $analysis.analysis_categories.performance
+            $versioningCount = $analysis.analysis_categories.versioning
+            $complianceCount = $analysis.analysis_categories.compliance
+
+            if ($isValid -eq 'true' -and $performanceCount -eq 0 -and $versioningCount -eq 0 -and $complianceCount -eq 0) {
+                Write-Host '✔️ OpenAPI analysis passed'
+                exit 0
+            } else {
+                Write-Host '❌ OpenAPI analysis failed'
+                Write-Host ($analysis | ConvertTo-Json -Depth 5)
+                exit 1
             }
