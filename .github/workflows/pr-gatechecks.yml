@@ -40,9 +40,9 @@ jobs:
         shell: pwsh
         run: |
             $isValid = "${{ steps.analyze.outputs.is_valid }}";
-            $performanceCount = ${{ steps.analyze.outputs.analysis.analysis_categories.performance }};
-            $versioningCount = ${{ steps.analyze.outputs.analysis.analysis_categories.versioning }};
-            $complianceCount = ${{ steps.analyze.outputs.analysis.analysis_categories.compliance }};
+            $performanceCount = ${{ steps.analyze.outputs.analysis_categories.performance }};
+            $versioningCount = ${{ steps.analyze.outputs.analysis_categories.versioning }};
+            $complianceCount = ${{ steps.analyze.outputs.analysis_categories.compliance }};
 
             if ($isValid -eq "true" -and $performanceCount -eq 0 -and $versioningCount -eq 0 -and $complianceCount -eq 0) {
               Write-Host "✔️ OpenAPI analysis passed";
