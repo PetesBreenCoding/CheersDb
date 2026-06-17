@@ -46,16 +46,13 @@ jobs:
           echo "Paths: ${{ steps.analyze.outputs.paths_count }}"
           echo "Schemas: ${{ steps.analyze.outputs.schemas_count }}"
 
-      - name: Comment on PR
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+      - name: Save OpenAPI analysis results
+        run: |
+          mkdir -p output/openapi-analysis
+          echo "${{ steps.analyze.outputs }}" > output/openapi-analysis/openapi-analysis.json
+
+      - name: Upload OpenAPI analysis results
+        uses: actions/upload-artifact@v4
         with:
-          script: |
-            const comment = `## 🔍 OpenAPI Analysis Results`;
-                          
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
+          name: openapi-analysis-results
+          path: output/openapi-analysis/openapi-analysis.json
