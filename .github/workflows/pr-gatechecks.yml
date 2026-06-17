@@ -68,7 +68,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const analysis = JSON.parse('${{ steps.analyze.outputs.analysis }}');
+            const analysis = JSON.parse(`${{ steps.analyze.outputs.analysis }}`);
             const categories = analysis.analysis_categories || {};
             const analytics = analysis.analytics || {};
           
