@@ -36,23 +36,20 @@ jobs:
           file: ${{ github.workspace }}/src/CheersDb.Api/CheersDb.Api.json
           output_format: json
 
-      - name: Display Results
-        run: |
-          echo "OpenAPI Analysis Results:"
-          echo "========================="
-          echo '${{ toJSON(steps.analyze.outputs) }}'
-
       - name: 👮 OpenAPI Analysis Quality Gate
         shell: pwsh
         run: |
             $isValid = "${{ steps.analyze.outputs.is_valid }}";
-            $suggestionsCount = ${{ steps.analyze.outputs.suggestions_count }};
+            $performanceCount = ${{ steps.analyze.outputs.analysis.analysis_categories.performance }};
+            $versioningCount = ${{ steps.analyze.outputs.analysis.analysis_categories.versioning }};
+            $complianceCount = ${{ steps.analyze.outputs.analysis.analysis_categories.compliance }};
 
-            if ($isValid -eq "true" -and $suggestionsCount -eq 0) {
+            if ($isValid -eq "true" -and $performanceCount -eq 0 -and $versioningCount -eq 0 -and $complianceCount -eq 0) {
               Write-Host "✔️ OpenAPI analysis passed";
               exit 0;
             }
             else {
               Write-Host "❌ OpenAPI analysis failed";
+              Write-Host "${{ steps.analyze.outputs.analysis.analysis_categories }}"
               exit 1;
             }
