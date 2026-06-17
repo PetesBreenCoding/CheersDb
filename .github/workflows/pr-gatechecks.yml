@@ -49,7 +49,7 @@ jobs:
       - name: Save OpenAPI analysis results
         run: |
           mkdir -p output/openapi-analysis
-          echo "${{ steps.analyze.outputs }}" > output/openapi-analysis/openapi-analysis.json
+          echo "${{ steps.analyze.outputs.analysis }}" > output/openapi-analysis/openapi-analysis.json
 
       - name: Upload OpenAPI analysis results
         uses: actions/upload-artifact@v4
