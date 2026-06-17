@@ -10,18 +10,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: 🎛️ Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: 🛠️ Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
 
-      - name: Restore
+      - name: 🔄 Restore
         run: dotnet restore
 
-      - name: Build
+      - name: 👷 Build
         run: dotnet build --no-restore --configuration Release
 
   #analyze-openapi:
@@ -29,30 +29,23 @@ jobs:
     #runs-on: ubuntu-latest
 
     #steps:
-      - name: Analyze OpenAPI
+      - name: 🔍 Analyze OpenAPI
         id: analyze
         uses: ApyGuard/apyguard_openapi_analysis@v1.0.9
         with:
           file: ${{ github.workspace }}/src/CheersDb.Api/CheersDb.Api.json
           output_format: json
 
-      - name: Display Results
+      - name: 👮 OpenAPI Analysis Quality Gate
+        shell: pwsh
         run: |
-          echo "OpenAPI Analysis Results:"
-          echo "========================="
-          echo "Valid: ${{ steps.analyze.outputs.is_valid }}"
-          echo "Suggestions: ${{ steps.analyze.outputs.suggestions_count }}"
-          echo "Operations: ${{ steps.analyze.outputs.operations_count }}"
-          echo "Paths: ${{ steps.analyze.outputs.paths_count }}"
-          echo "Schemas: ${{ steps.analyze.outputs.schemas_count }}"
+            $isValid = ${{ steps.analyze.outputs.is_valid }};
 
-      - name: Save OpenAPI analysis results
-        run: |
-          mkdir -p output/openapi-analysis
-          echo "${{ steps.analyze.outputs.analysis }}" > output/openapi-analysis/openapi-analysis.json
-
-      - name: Upload OpenAPI analysis results
-        uses: actions/upload-artifact@v4
-        with:
-          name: openapi-analysis-results
-          path: output/openapi-analysis/openapi-analysis.json
+            if ($isValid) {
+              Write-Host "✅ OpenAPI analysis passed quality gate checks.";
+              exit 0;
+            }
+            else {
+              Write-Host "❌ OpenAPI analysis failed quality gate checks.";
+              exit 1;
+            }
