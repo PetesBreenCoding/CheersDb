@@ -40,12 +40,13 @@ jobs:
         shell: pwsh
         run: |
             $isValid = "${{ steps.analyze.outputs.is_valid }}";
+            $suggestionsCount = ${{ steps.analyze.outputs.suggestions_count }};
 
-            if ($isValid -eq "true") {
-              Write-Host "✅ OpenAPI analysis passed quality gate checks.";
+            if ($isValid -eq "true" -and $suggestionsCount -eq 0) {
+              Write-Host -ForegroundColor Green "✔️ OpenAPI analysis passed";
               exit 0;
             }
             else {
-              Write-Host "❌ OpenAPI analysis failed quality gate checks.";
+              Write-Host -ForegroundColor Red "❌ OpenAPI analysis failed";
               exit 1;
             }
