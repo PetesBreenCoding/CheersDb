@@ -87,16 +87,19 @@ jobs:
       - name: 🚦 OpenAPI Gatecheck
         uses: actions/github-script@v9
         env:
-          IS_VALID: ${{ steps.analyze.outputs.is_valid }}
           ANALYSIS: ${{ steps.analyze.outputs.analysis }}
         with:
           script: |
             const analysis = JSON.parse(process.env.ANALYSIS);
+            const categories = analysis.analysis_categories || {};
+            const issueCount = categories.performance + categories.compliance + categories.versioning;
 
-            if (process.env.IS_VALID && analysis.is_valid) {
+            if (analysis.is_valid && issueCount === 0) {
               console.log('✔️ OpenAPI analysis passed');
               process.exit(0);
             } else {
+              console.log(`Valid: ${analysis.is_valid}`);
+              console.log(`Total blocking issues: ${issueCount}`);
               console.error('❌ OpenAPI analysis failed');
               process.exit(1);
             }
