@@ -5,8 +5,10 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  build:
-    #name: Build Solution
+  pr-gatechecks:
+    permissions:
+      pull-requests: write
+    name: PR Gatechecks
     runs-on: ubuntu-latest
 
     steps:
@@ -24,11 +26,6 @@ jobs:
       - name: 👷 Build
         run: dotnet build --no-restore --configuration Release
 
-  #analyze-openapi:
-    #name: Analyze OpenAPI Spec
-    #runs-on: ubuntu-latest
-
-    #steps:
       - name: 🔍 Analyze OpenAPI
         id: analyze
         uses: ApyGuard/apyguard_openapi_analysis@v1.0.9
