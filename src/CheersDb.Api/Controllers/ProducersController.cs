@@ -21,7 +21,6 @@ public class ProducersController : ControllerBase
 	[HttpGet("{id:int}", Name = nameof(GetProducerDetails))]
 	[ProducesResponseType(typeof(GetProducerDetailsDto), StatusCodes.Status200OK, Description = "Returns the requested producer in the response body")]
 	[ProducesResponseType(StatusCodes.Status404NotFound, Description = "Indicates the requested producer was not found, or the URI is invalid")]
-	[ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
 	public IActionResult GetProducerDetails([FromRoute] int id)
 	{
 		return Ok(new GetProducerDetailsDto()

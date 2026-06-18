@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi;
 using System.Net;
-using System.Net.Mime;
 
 namespace CheersDb.Api.Extensions;
 
@@ -12,52 +11,50 @@ namespace CheersDb.Api.Extensions;
 public static class OpenApiOptionsExtensions
 {
 	private static readonly string _internalServerErrorResponseKey = ((int)HttpStatusCode.InternalServerError).ToString();
+
 	private static readonly Lazy<OpenApiResponseReference> _internalServerErrorResponseReference = new(() => new OpenApiResponseReference(nameof(HttpStatusCode.InternalServerError)));
+	private static readonly Lazy<OpenApiHeaderReference> _cacheControlHeaderReference	= new(() => new OpenApiHeaderReference(HeaderNames.CacheControl));
+	private static readonly Lazy<OpenApiHeaderReference> _etagHeaderReference = new(() => new OpenApiHeaderReference(HeaderNames.ETag));
 
-	/// <summary>
-	/// Adds a document transformer to the OpenAPI options that applies the provided transformation function to the generated OpenAPI document.
-	/// </summary>
-	/// <param name="options">The OpenAPI options to configure.</param>
-	/// <param name="appSettings">The application settings containing the OpenAPI information to be applied to the document.</param>
-	public static OpenApiOptions ConfigureDocument(this OpenApiOptions options, AppSettings appSettings)
+	extension(OpenApiOptions options)
 	{
-		return options.AddDocumentTransformer(async (document, context, cancellationToken) =>
+		/// <summary>
+		/// Adds a document transformer to the OpenAPI options that applies the provided transformation function to the generated OpenAPI document.
+		/// </summary>
+		/// <param name="appSettings">The application settings containing the OpenAPI information to be applied to the document.</param>
+		public OpenApiOptions ConfigureDocument(AppSettings appSettings)
 		{
-			if (appSettings?.OpenApiInfo is not null)
-				document.Info = appSettings.OpenApiInfo;
-
-			document.Components ??= new OpenApiComponents();
-			document.Components.Responses ??= new Dictionary<string, IOpenApiResponse>();
-
-			var problemDetailsSchema = await context.GetOrCreateSchemaAsync(typeof(ProblemDetails), cancellationToken: cancellationToken);
-
-			var response = new OpenApiResponse
+			return options.AddDocumentTransformer(async (document, context, cancellationToken) =>
 			{
-				Description = "Indicates that an unexpected internal server error has occurred",
-				Content = new Dictionary<string, OpenApiMediaType>
-				{
-					[MediaTypeNames.Application.Json] = new OpenApiMediaType
-					{
-						Schema = new OpenApiSchemaReference(nameof(ProblemDetails))
-					}
-				}
-			};
+				if (appSettings?.OpenApiInfo is not null)
+					document.Info = appSettings.OpenApiInfo;
 
-			document.Components.Responses.Add(nameof(HttpStatusCode.InternalServerError), response);
-		});
-	}
+				document.Components ??= new OpenApiComponents();
 
-	/// <summary>
-	/// Adds an operation transformer to the OpenAPI options that configures operation responses.
-	/// </summary>
-	/// <param name="options">The OpenAPI options to configure.</param>
-	/// <param name="appSettings">The application settings.</param>
-	public static OpenApiOptions ConfigureOperations(this OpenApiOptions options, AppSettings appSettings)
-	{
-		return options.AddOperationTransformer(async (operation, context, cancellationToken) =>
+				await document.Components.ConfigureResponsesAsync(context, cancellationToken);
+				document.Components.ConfigureHeaders();
+			});
+		}
+
+		/// <summary>
+		/// Adds an operation transformer to the OpenAPI options that configures operation responses.
+		/// </summary>
+		public OpenApiOptions ConfigureOperations()
 		{
-			operation.Responses ??= [];
-			operation.Responses.Add(_internalServerErrorResponseKey, _internalServerErrorResponseReference.Value);
-		});
+			return options.AddOperationTransformer(async (operation, context, cancellationToken) =>
+			{
+				operation.Responses ??= [];
+				operation.Responses.Add(_internalServerErrorResponseKey, _internalServerErrorResponseReference.Value);
+
+				operation.Responses.TryGetValue(((int)HttpStatusCode.OK).ToString(), out var okResponse);
+
+				if (okResponse is not null && okResponse is OpenApiResponse okResponseConcrete)
+				{
+					okResponseConcrete.Headers ??= new Dictionary<string, IOpenApiHeader>();
+					okResponseConcrete.Headers.Add(HeaderNames.CacheControl, _cacheControlHeaderReference.Value);
+					okResponseConcrete.Headers.Add(HeaderNames.ETag, _etagHeaderReference.Value);
+				}
+			});
+		}
 	}
 }

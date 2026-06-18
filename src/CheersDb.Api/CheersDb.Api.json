@@ -29,6 +29,14 @@
         "responses": {
           "200": {
             "description": "Returns the requested producer in the response body",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/Cache-Control"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -172,6 +180,20 @@
               "$ref": "#/components/schemas/ProblemDetails"
             }
           }
+        }
+      }
+    },
+    "headers": {
+      "Cache-Control": {
+        "description": "Instructions for caching mechanisms in responses",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ETag": {
+        "description": "Indicates the current version of the resource",
+        "schema": {
+          "type": "string"
         }
       }
     }
