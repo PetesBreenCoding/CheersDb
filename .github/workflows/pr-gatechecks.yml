@@ -32,35 +32,8 @@ jobs:
         with:
           file: ${{ github.workspace }}/src/CheersDb.Api/CheersDb.Api.json
           output_format: json
-
-      - name: Display Results
-        run: |
-          echo "🔍 OpenAPI Analysis Results:"
-          echo "============================"
-          echo "✅ Valid: ${{ steps.analyze.outputs.is_valid }}"
-          echo "📊 Basic Metrics:"
-          echo "  - Operations: ${{ steps.analyze.outputs.operations_count }}"
-          echo "  - Paths: ${{ steps.analyze.outputs.paths_count }}"
-          echo "  - Schemas: ${{ steps.analyze.outputs.schemas_count }}"
-          echo "  - Total Suggestions: ${{ steps.analyze.outputs.suggestions_count }}"
-          echo ""
-          echo "🎯 Advanced Analytics:"
-          echo "  - Complexity Score: ${{ steps.analyze.outputs.complexity_score }}"
-          echo "  - Maintainability Score: ${{ steps.analyze.outputs.maintainability_score }}"
-          echo ""
-          echo "📋 Analysis Categories:"
-          echo "  - 🔒 Security Issues: ${{ steps.analyze.outputs.security_issues }}"
-          echo "  - ⚡ Performance Issues: ${{ steps.analyze.outputs.performance_issues }}"
-          echo "  - 🏗️ Design Pattern Issues: ${{ steps.analyze.outputs.design_pattern_issues }}"
-          echo "  - 🔄 Versioning Issues: ${{ steps.analyze.outputs.versioning_issues }}"
-          echo "  - 📝 Documentation Issues: ${{ steps.analyze.outputs.documentation_issues }}"
-          echo "  - 🛡️ Compliance Issues: ${{ steps.analyze.outputs.compliance_issues }}"
-          echo "  - 🧪 Testing Recommendations: ${{ steps.analyze.outputs.testing_recommendations }}"
-          echo "  - 📈 Monitoring Recommendations: ${{ steps.analyze.outputs.monitoring_recommendations }}"
-          echo "  - 🔧 Code Generation Opportunities: ${{ steps.analyze.outputs.code_generation_opportunities }}"
-          echo "  - 🏛️ Governance Issues: ${{ steps.analyze.outputs.governance_issues }}"
-        
-      - name: Comment on PR
+       
+      - name: ✏️ Comment on PR
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
@@ -111,3 +84,28 @@ jobs:
               repo: context.repo.repo,
               body: comment
             });
+
+      - name: 🚦 OpenAPI Gatecheck
+        shell: pwsh
+        run: |
+            $isValid = '${{ steps.analyze.outputs.is_valid }}'
+            $analysisJson = `${{ steps.analyze.outputs.analysis }}`
+
+            if ([string]::IsNullOrEmpty($analysisJson)) {
+                Write-Host '❌ OpenAPI analysis produced no analysis output';
+                exit 1;
+            }
+
+            $analysis = $analysisJson | ConvertFrom-Json
+            $performanceCount = $analysis.analysis_categories.performance
+            $versioningCount = $analysis.analysis_categories.versioning
+            $complianceCount = $analysis.analysis_categories.compliance
+
+            if ($isValid -eq 'true' -and $performanceCount -eq 0 -and $versioningCount -eq 0 -and $complianceCount -eq 0) {
+                Write-Host '✔️ OpenAPI analysis passed'
+                exit 0
+            } else {
+                Write-Host '❌ OpenAPI analysis failed'
+                Write-Host ($analysis | ConvertTo-Json -Depth 5)
+                exit 1
+            }
