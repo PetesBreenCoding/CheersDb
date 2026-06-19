@@ -1,3 +1,4 @@
+using CheersDb.Api.Http;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi;
@@ -11,10 +12,15 @@ namespace CheersDb.Api.Extensions;
 public static class OpenApiOptionsExtensions
 {
 	private static readonly string _internalServerErrorResponseKey = ((int)HttpStatusCode.InternalServerError).ToString();
+	private static readonly string _tooManyRequestsResponseKey = ((int)HttpStatusCode.TooManyRequests).ToString();
 
-	private static readonly Lazy<OpenApiResponseReference> _internalServerErrorResponseReference = new(() => new OpenApiResponseReference(nameof(HttpStatusCode.InternalServerError)));
-	private static readonly Lazy<OpenApiHeaderReference> _cacheControlHeaderReference	= new(() => new OpenApiHeaderReference(HeaderNames.CacheControl));
-	private static readonly Lazy<OpenApiHeaderReference> _etagHeaderReference = new(() => new OpenApiHeaderReference(HeaderNames.ETag));
+	private static readonly OpenApiResponseReference _internalServerErrorResponseReference = new(nameof(HttpStatusCode.InternalServerError));
+	private static readonly OpenApiResponse	_tooManyRequestsResponse = new() { Description = "Indicates that the user has sent too many requests in a given amount of time" };
+
+	private static readonly OpenApiHeaderReference _cacheControlHeaderReference = new(HeaderNames.CacheControl);
+	private static readonly OpenApiHeaderReference _etagHeaderReference = new(HeaderNames.ETag);
+	private static readonly OpenApiHeaderReference _retryAfterHeaderReference = new(HeaderNames.RetryAfter);
+	private static readonly OpenApiHeaderReference _rateLimitLimitHeaderReference = new(NonStandardHeaderNames.XRateLimitLimit);
 
 	extension(OpenApiOptions options)
 	{
@@ -44,16 +50,36 @@ public static class OpenApiOptionsExtensions
 			return options.AddOperationTransformer(async (operation, context, cancellationToken) =>
 			{
 				operation.Responses ??= [];
-				operation.Responses.Add(_internalServerErrorResponseKey, _internalServerErrorResponseReference.Value);
+				operation.Responses.Add(_internalServerErrorResponseKey, _internalServerErrorResponseReference);
+
+				var tooManyRequestsResponse = new OpenApiResponse
+				{
+					Description = "Indicates that the user has sent too many requests in a given amount of time",
+					Headers = new Dictionary<string, IOpenApiHeader>
+					{
+						[HeaderNames.RetryAfter] = _retryAfterHeaderReference
+					}
+				};
+
+				operation.Responses.Add(_tooManyRequestsResponseKey, tooManyRequestsResponse);
 
 				operation.Responses.TryGetValue(((int)HttpStatusCode.OK).ToString(), out var okResponse);
 
 				if (okResponse is not null && okResponse is OpenApiResponse okResponseConcrete)
 				{
 					okResponseConcrete.Headers ??= new Dictionary<string, IOpenApiHeader>();
-					okResponseConcrete.Headers.Add(HeaderNames.CacheControl, _cacheControlHeaderReference.Value);
-					okResponseConcrete.Headers.Add(HeaderNames.ETag, _etagHeaderReference.Value);
+					okResponseConcrete.Headers.Add(HeaderNames.CacheControl, _cacheControlHeaderReference);
+					okResponseConcrete.Headers.Add(HeaderNames.ETag, _etagHeaderReference);
+					okResponseConcrete.Headers.Add(NonStandardHeaderNames.XRateLimitLimit, _rateLimitLimitHeaderReference);
 				}
+
+				//operation.Responses.TryGetValue(_tooManyRequestsResponseKey, out var tooManyRequestsResponse);
+
+				//if (tooManyRequestsResponse is not null && tooManyRequestsResponse is OpenApiResponse tooManyRequestsResponseConcrete)
+				//{
+				//	tooManyRequestsResponseConcrete.Headers ??= new Dictionary<string, IOpenApiHeader>();
+				//	tooManyRequestsResponseConcrete.Headers.Add(HeaderNames.RetryAfter, _retryAfterHeaderReference);
+				//}
 			});
 		}
 	}

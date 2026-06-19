@@ -3,6 +3,15 @@
   "info": {
     "title": "CheersDb API",
     "description": "An API for retrieving and altering breweries on the CheersDb platform",
+    "contact": {
+      "name": "CheersDb Support",
+      "url": "https://cheersdb.org/support",
+      "email": "info@cheersdb.org"
+    },
+    "license": {
+      "name": "GPL-3.0",
+      "url": "https://github.com/PetesBreenCoding/CheersDb?tab=GPL-3.0-1-ov-file"
+    },
     "version": "v1"
   },
   "paths": {
@@ -35,6 +44,9 @@
               },
               "ETag": {
                 "$ref": "#/components/headers/ETag"
+              },
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/X-RateLimit-Limit"
               }
             },
             "content": {
@@ -57,6 +69,14 @@
           },
           "500": {
             "$ref": "#/components/responses/InternalServerError"
+          },
+          "429": {
+            "description": "Indicates that the user has sent too many requests in a given amount of time",
+            "headers": {
+              "Retry-After": {
+                "$ref": "#/components/headers/Retry-After"
+              }
+            }
           }
         }
       }
@@ -85,6 +105,16 @@
             ],
             "description": "The name of the producer",
             "example": "Rye River Brewing"
+          },
+          "revision": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "The revision number of the producer",
+            "format": "int32"
           },
           "links": {
             "type": [
@@ -195,6 +225,19 @@
         "schema": {
           "type": "string"
         }
+      },
+      "Retry-After": {
+        "description": "Indicates how many seconds the user agent should wait before making a follow-up request",
+        "schema": {
+          "type": "number"
+        }
+      },
+      "X-RateLimit-Limit": {
+        "description": "Indicates the maximum number of requests that the user is allowed to make in a given amount of time",
+        "schema": {
+          "type": "number"
+        },
+        "example": 1000
       }
     }
   },

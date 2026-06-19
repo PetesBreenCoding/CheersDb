@@ -4,3 +4,4 @@ GET {{CheersDb.Api_HostAddress}}/producers/1
 Accept: application/json
 
 ###
+http 

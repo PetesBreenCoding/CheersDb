@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CheersDb.Api.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi;
@@ -12,7 +13,8 @@ namespace CheersDb.Api.Extensions;
 /// </summary>
 public static class OpenApiComponentsExtensions
 {
-	private static readonly Lazy<OpenApiSchema> _stringSchema = new(() => new OpenApiSchema { Type = JsonSchemaType.String });
+	private static readonly OpenApiSchema _stringSchema = new() { Type = JsonSchemaType.String };
+	private static readonly OpenApiSchema _numberSchema = new() { Type = JsonSchemaType.Number };
 
 	extension(OpenApiComponents components)
 	{
@@ -27,7 +29,7 @@ public static class OpenApiComponentsExtensions
 
 			var problemDetailsSchema = await context.GetOrCreateSchemaAsync(typeof(ProblemDetails), cancellationToken: cancellationToken);
 
-			var response = new OpenApiResponse
+			var internalServerErrorResonse = new OpenApiResponse
 			{
 				Description = "Indicates that an unexpected internal server error has occurred",
 				Content = new Dictionary<string, OpenApiMediaType>
@@ -39,7 +41,7 @@ public static class OpenApiComponentsExtensions
 				}
 			};
 
-			components.Responses.Add(nameof(HttpStatusCode.InternalServerError), response);
+			components.Responses.Add(nameof(HttpStatusCode.InternalServerError), internalServerErrorResonse);
 		}
 
 		/// <summary>
@@ -52,17 +54,32 @@ public static class OpenApiComponentsExtensions
 			var cacheControlHeader = new OpenApiHeader
 			{
 				Description = "Instructions for caching mechanisms in responses",
-				Schema = _stringSchema.Value
+				Schema = _stringSchema
 			};
 
 			var etagHeader = new OpenApiHeader
 			{
 				Description = "Indicates the current version of the resource",
-				Schema = _stringSchema.Value
+				Schema = _stringSchema
+			};
+
+			var retryAfterHeader = new OpenApiHeader
+			{
+				Description = "Indicates how many seconds the user agent should wait before making a follow-up request",
+				Schema = _numberSchema
+			};
+
+			var rateLimitLimitHeader = new OpenApiHeader
+			{
+				Description = "Indicates the maximum number of requests that the user is allowed to make in a given amount of time",
+				Example = 1000,
+				Schema = _numberSchema,
 			};
 
 			components.Headers.Add(HeaderNames.CacheControl, cacheControlHeader);
 			components.Headers.Add(HeaderNames.ETag, etagHeader);
+			components.Headers.Add(HeaderNames.RetryAfter, retryAfterHeader);
+			components.Headers.Add(NonStandardHeaderNames.XRateLimitLimit, rateLimitLimitHeader);
 		}
 	}
 }

@@ -1,6 +1,8 @@
 using CheersDb.Api.Dtos;
 using CheersDb.Api.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Net.Http.Headers;
 using System.Net.Mime;
 
 namespace CheersDb.Api.Controllers;
@@ -21,21 +23,27 @@ public class ProducersController : ControllerBase
 	[HttpGet("{id:int}", Name = nameof(GetProducerDetails))]
 	[ProducesResponseType(typeof(GetProducerDetailsDto), StatusCodes.Status200OK, Description = "Returns the requested producer in the response body")]
 	[ProducesResponseType(StatusCodes.Status404NotFound, Description = "Indicates the requested producer was not found, or the URI is invalid")]
+	[ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
 	public IActionResult GetProducerDetails([FromRoute] int id)
 	{
-		return Ok(new GetProducerDetailsDto()
+		var producerDetails = new GetProducerDetailsDto()
 		{
 			Id = id,
 			Name = "Producer Name",
+			Revision = 7,
 			Links =
 			[
-				new() 
+				new()
 				{
 					Rel = LinkRels.Self,
 					Href = Url.RouteUrl(nameof(GetProducerDetails), new { id }) ?? string.Empty,
 					Method = HttpMethod.Get.ToString()
 				}
 			]
-		});
+		};
+
+		Response.Headers.Append(HeaderNames.ETag, producerDetails.Revision.ToString());
+
+		return Ok(producerDetails);
 	}
 }

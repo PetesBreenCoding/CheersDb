@@ -18,6 +18,11 @@ public class GetProducerDetailsDto
 	public string? Name { get; init; }
 
 	/// <summary>
+	/// The revision number of the producer
+	/// </summary>
+	public int? Revision { get; init; }
+
+	/// <summary>
 	/// Links related to the producer, such as a self link to retrieve the producer details
 	/// </summary>
 	/// <example>
