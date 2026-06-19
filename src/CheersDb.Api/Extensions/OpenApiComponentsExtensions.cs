@@ -76,10 +76,26 @@ public static class OpenApiComponentsExtensions
 				Schema = _numberSchema,
 			};
 
+			var rateLimitRemainingHeader = new OpenApiHeader
+			{
+				Description = "Indicates the number of requests remaining in the current rate limit window",
+				Example = 999,
+				Schema = _numberSchema,
+			};
+
+			var rateLimitResetHeader = new OpenApiHeader
+			{
+				Description = "The number of seconds until the rate limit resets.",
+				Example = 60,
+				Schema = _numberSchema,
+			};
+
 			components.Headers.Add(HeaderNames.CacheControl, cacheControlHeader);
 			components.Headers.Add(HeaderNames.ETag, etagHeader);
 			components.Headers.Add(HeaderNames.RetryAfter, retryAfterHeader);
 			components.Headers.Add(NonStandardHeaderNames.XRateLimitLimit, rateLimitLimitHeader);
+			components.Headers.Add(NonStandardHeaderNames.XRateLimitRemaining, rateLimitRemainingHeader);
+			components.Headers.Add(NonStandardHeaderNames.XRateLimitReset, rateLimitResetHeader);
 		}
 	}
 }

@@ -15,12 +15,13 @@ public static class OpenApiOptionsExtensions
 	private static readonly string _tooManyRequestsResponseKey = ((int)HttpStatusCode.TooManyRequests).ToString();
 
 	private static readonly OpenApiResponseReference _internalServerErrorResponseReference = new(nameof(HttpStatusCode.InternalServerError));
-	private static readonly OpenApiResponse	_tooManyRequestsResponse = new() { Description = "Indicates that the user has sent too many requests in a given amount of time" };
 
 	private static readonly OpenApiHeaderReference _cacheControlHeaderReference = new(HeaderNames.CacheControl);
 	private static readonly OpenApiHeaderReference _etagHeaderReference = new(HeaderNames.ETag);
 	private static readonly OpenApiHeaderReference _retryAfterHeaderReference = new(HeaderNames.RetryAfter);
 	private static readonly OpenApiHeaderReference _rateLimitLimitHeaderReference = new(NonStandardHeaderNames.XRateLimitLimit);
+	private static readonly OpenApiHeaderReference _rateLimitRemainingHeaderReference = new(NonStandardHeaderNames.XRateLimitRemaining);
+	private static readonly OpenApiHeaderReference _rateLimitResetHeaderReference = new(NonStandardHeaderNames.XRateLimitReset);
 
 	extension(OpenApiOptions options)
 	{
@@ -71,15 +72,9 @@ public static class OpenApiOptionsExtensions
 					okResponseConcrete.Headers.Add(HeaderNames.CacheControl, _cacheControlHeaderReference);
 					okResponseConcrete.Headers.Add(HeaderNames.ETag, _etagHeaderReference);
 					okResponseConcrete.Headers.Add(NonStandardHeaderNames.XRateLimitLimit, _rateLimitLimitHeaderReference);
+					okResponseConcrete.Headers.Add(NonStandardHeaderNames.XRateLimitRemaining, _rateLimitRemainingHeaderReference);
+					okResponseConcrete.Headers.Add(NonStandardHeaderNames.XRateLimitReset, _rateLimitResetHeaderReference);
 				}
-
-				//operation.Responses.TryGetValue(_tooManyRequestsResponseKey, out var tooManyRequestsResponse);
-
-				//if (tooManyRequestsResponse is not null && tooManyRequestsResponse is OpenApiResponse tooManyRequestsResponseConcrete)
-				//{
-				//	tooManyRequestsResponseConcrete.Headers ??= new Dictionary<string, IOpenApiHeader>();
-				//	tooManyRequestsResponseConcrete.Headers.Add(HeaderNames.RetryAfter, _retryAfterHeaderReference);
-				//}
 			});
 		}
 	}

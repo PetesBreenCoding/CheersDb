@@ -47,6 +47,12 @@
               },
               "X-RateLimit-Limit": {
                 "$ref": "#/components/headers/X-RateLimit-Limit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
               }
             },
             "content": {
@@ -238,6 +244,20 @@
           "type": "number"
         },
         "example": 1000
+      },
+      "X-RateLimit-Remaining": {
+        "description": "Indicates the number of requests remaining in the current rate limit window",
+        "schema": {
+          "type": "number"
+        },
+        "example": 999
+      },
+      "X-RateLimit-Reset": {
+        "description": "The number of seconds until the rate limit resets.",
+        "schema": {
+          "type": "number"
+        },
+        "example": 60
       }
     }
   },
