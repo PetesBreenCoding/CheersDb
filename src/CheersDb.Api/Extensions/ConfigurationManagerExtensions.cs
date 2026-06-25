@@ -14,13 +14,17 @@ public static class ConfigurationManagerExtensions
 		/// <exception cref="InvalidOperationException">Thrown when the application settings are invalid.</exception>
 		public AppSettings GetAppSettings()
 		{
-			var appSettings = configurationManager.Get<AppSettings>();
-
-			if (appSettings is null)
-				throw new InvalidOperationException("There was an issue parsing the application settings.");
+			var appSettings = configurationManager.Get<AppSettings>() 
+							?? throw new InvalidOperationException("There was an issue parsing the application settings.");
 
 			if (appSettings.OpenApiInfo is null)
 				throw new InvalidOperationException($"{nameof(AppSettings.OpenApiInfo)} was not parsed in the application settings.");
+
+			if (string.IsNullOrEmpty(appSettings.OpenApiSecurityScheme?.Name) || string.IsNullOrEmpty(appSettings.OpenApiSecurityScheme?.Scheme))
+				throw new InvalidOperationException($"{nameof(AppSettings.OpenApiSecurityScheme)} was not parsed in the application settings.");
+
+			if (string.IsNullOrEmpty(appSettings.JwtAuth?.Key))
+				throw new InvalidOperationException($"{nameof(AppSettings.JwtAuth)} was not parsed in the application settings.");
 
 			return appSettings;
 		}

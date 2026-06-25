@@ -8,7 +8,7 @@ public class GetProducerDetailsDto
 	/// <summary>
 	/// The id of the producer
 	/// </summary>
-	/// <example>328</example>
+	/// <example>24</example>
 	public int? Id { get; init; }
 
 	/// <summary>
@@ -29,7 +29,7 @@ public class GetProducerDetailsDto
 	///	[
 	///		{
 	///			"rel": "self",
-	///			"href": "/producers/328",
+	///			"href": "/producers/24",
 	///			"method": "GET"
 	///		}
 	///	]	

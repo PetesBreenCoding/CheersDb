@@ -1,5 +1,5 @@
 using CheersDb.Api.Extensions;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 var appSettings = builder.Configuration.GetAppSettings();
 
 builder.Services
-	.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+	.AddAuthentication(appSettings.OpenApiSecurityScheme!.Scheme!)
 	.AddJwtBearer(options =>
 	{
 		options.TokenValidationParameters = new()
@@ -18,16 +18,20 @@ builder.Services
 			ValidateLifetime = true,
 			ValidateIssuerSigningKey = true,
 
-			ValidIssuer = "cheersdb-api",
-			ValidAudience = "cheersdb-clients",
+			ValidIssuer = appSettings.JwtAuth!.Issuer,
+			ValidAudience = appSettings.JwtAuth!.Audience,
 
-			IssuerSigningKey =
-				new SymmetricSecurityKey(Encoding.UTF8.GetBytes("12345")) //TODO add proper key 
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.JwtAuth!.Key!))
 		};
 	});
 
 // Add services to the container.
 builder.Services.AddControllers();
+
+builder.Services.AddAuthorizationBuilder()
+	.SetFallbackPolicy(new AuthorizationPolicyBuilder()
+		.RequireAuthenticatedUser()
+		.Build());
 
 builder.Services.AddRouting(options =>
 {
@@ -43,14 +47,14 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-	app.MapOpenApi();
-	app.MapScalarApiReference("/docs");
+	app.MapOpenApi().AllowAnonymous();
+	app.MapScalarApiReference("/docs").AllowAnonymous();
 }
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers().RequireAuthorization();
 
 app.Run();
