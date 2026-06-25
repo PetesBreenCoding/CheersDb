@@ -1,4 +1,5 @@
 using CheersDb.Api.Http;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi;
@@ -22,6 +23,15 @@ public static class OpenApiOptionsExtensions
 	private static readonly OpenApiHeaderReference _rateLimitLimitHeaderReference = new(NonStandardHeaderNames.XRateLimitLimit);
 	private static readonly OpenApiHeaderReference _rateLimitRemainingHeaderReference = new(NonStandardHeaderNames.XRateLimitRemaining);
 	private static readonly OpenApiHeaderReference _rateLimitResetHeaderReference = new(NonStandardHeaderNames.XRateLimitReset);
+	private static OpenApiSecurityRequirement? _defaultSecurityRequirement = null;
+
+	private static OpenApiSecurityRequirement BuildDefaultSecurityRequirement(AppSettings? appSettings, OpenApiDocument? document)
+	{
+		return _defaultSecurityRequirement ??= new OpenApiSecurityRequirement
+		{
+			{ new OpenApiSecuritySchemeReference(appSettings?.OpenApiSecurityScheme?.Name ?? JwtBearerDefaults.AuthenticationScheme, document), new List<string>() }
+		};
+	}
 
 	extension(OpenApiOptions options)
 	{
@@ -36,17 +46,21 @@ public static class OpenApiOptionsExtensions
 				if (appSettings?.OpenApiInfo is not null)
 					document.Info = appSettings.OpenApiInfo;
 
+				document.Security ??= [];
+				document.Security.Add(BuildDefaultSecurityRequirement(appSettings, document));
+
 				document.Components ??= new OpenApiComponents();
 
 				await document.Components.ConfigureResponsesAsync(context, cancellationToken);
 				document.Components.ConfigureHeaders();
+				document.Components.ConfigureSecuritySchemes(appSettings?.OpenApiSecurityScheme);
 			});
 		}
 
 		/// <summary>
 		/// Adds an operation transformer to the OpenAPI options that configures operation responses.
 		/// </summary>
-		public OpenApiOptions ConfigureOperations()
+		public OpenApiOptions ConfigureOperations(AppSettings appSettings)
 		{
 			return options.AddOperationTransformer(async (operation, context, cancellationToken) =>
 			{
@@ -75,6 +89,9 @@ public static class OpenApiOptionsExtensions
 					okResponseConcrete.Headers.Add(NonStandardHeaderNames.XRateLimitRemaining, _rateLimitRemainingHeaderReference);
 					okResponseConcrete.Headers.Add(NonStandardHeaderNames.XRateLimitReset, _rateLimitResetHeaderReference);
 				}
+
+				operation.Security ??= [];
+				operation.Security.Add(BuildDefaultSecurityRequirement(appSettings, context.Document));
 			});
 		}
 	}

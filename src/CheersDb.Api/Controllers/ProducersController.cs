@@ -1,7 +1,8 @@
 using CheersDb.Api.Dtos;
 using CheersDb.Api.Http;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Net.Http.Headers;
 using System.Net.Mime;
 
@@ -11,6 +12,7 @@ namespace CheersDb.Api.Controllers;
 /// Controller for managing producers in the CheersDb API.
 /// </summary>
 [ApiController]
+[Authorize(AuthenticationSchemes = "bearerAuth")]
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 public class ProducersController : ControllerBase
@@ -24,6 +26,7 @@ public class ProducersController : ControllerBase
 	[ProducesResponseType(typeof(GetProducerDetailsDto), StatusCodes.Status200OK, Description = "Returns the requested producer in the response body")]
 	[ProducesResponseType(StatusCodes.Status404NotFound, Description = "Indicates the requested producer was not found, or the URI is invalid")]
 	[ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
+	[Authorize(AuthenticationSchemes = "bearerAuth")]
 	public IActionResult GetProducerDetails([FromRoute] int id)
 	{
 		var producerDetails = new GetProducerDetailsDto()

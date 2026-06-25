@@ -84,7 +84,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": [ ]
+          }
+        ]
       }
     }
   },
@@ -259,8 +264,21 @@
         },
         "example": 60
       }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "description": "JWT Bearer token authentication",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT"
+      }
     }
   },
+  "security": [
+    {
+      "bearerAuth": [ ]
+    }
+  ],
   "tags": [
     {
       "name": "Producers"

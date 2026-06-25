@@ -19,7 +19,7 @@ public static class ServiceCollectionExtensions
 			{
 				options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
 				options.ConfigureDocument(appSettings);
-				options.ConfigureOperations();
+				options.ConfigureOperations(appSettings);
 			});
 		}
 	}

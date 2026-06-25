@@ -1,4 +1,5 @@
 ﻿using CheersDb.Api.Http;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Net.Http.Headers;
@@ -96,6 +97,19 @@ public static class OpenApiComponentsExtensions
 			components.Headers.Add(NonStandardHeaderNames.XRateLimitLimit, rateLimitLimitHeader);
 			components.Headers.Add(NonStandardHeaderNames.XRateLimitRemaining, rateLimitRemainingHeader);
 			components.Headers.Add(NonStandardHeaderNames.XRateLimitReset, rateLimitResetHeader);
+		}
+
+		/// <summary>
+		/// Configures the OpenAPI components to include a security scheme for JWT Bearer authentication.
+		/// </summary>
+		/// <param name="openApiSecurityScheme">The OpenAPI security scheme to include.</param>
+		public void ConfigureSecuritySchemes(OpenApiSecurityScheme? openApiSecurityScheme)
+		{
+			if (openApiSecurityScheme is null)
+				return;
+
+			components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+			components.SecuritySchemes.Add(openApiSecurityScheme.Name ?? JwtBearerDefaults.AuthenticationScheme, openApiSecurityScheme);
 		}
 	}
 }
