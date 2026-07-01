@@ -30,7 +30,6 @@
             "description": "The id of the producer to retrieve",
             "required": true,
             "schema": {
-              "pattern": "^-?(?:0|[1-9]\\d*)$",
               "type": "integer",
               "format": "int32"
             },
@@ -98,42 +97,32 @@
   "components": {
     "schemas": {
       "GetProducerDetailsDto": {
+        "required": [
+          "id",
+          "name",
+          "revision",
+          "links"
+        ],
         "type": "object",
         "properties": {
           "id": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "null",
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "description": "The id of the producer",
             "format": "int32",
             "example": 24
           },
           "name": {
-            "type": [
-              "null",
-              "string"
-            ],
+            "type": "string",
             "description": "The name of the producer",
             "example": "Rye River Brewing"
           },
           "revision": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "null",
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "description": "The revision number of the producer",
             "format": "int32"
           },
           "links": {
-            "type": [
-              "null",
-              "array"
-            ],
+            "type": "array",
             "items": {
               "$ref": "#/components/schemas/LinkDto"
             },
@@ -191,11 +180,9 @@
             ]
           },
           "status": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
               "null",
-              "integer",
-              "string"
+              "integer"
             ],
             "format": "int32"
           },

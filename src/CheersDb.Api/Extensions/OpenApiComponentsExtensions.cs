@@ -1,6 +1,7 @@
 ﻿using CheersDb.Api.Http;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi;
@@ -28,7 +29,22 @@ public static class OpenApiComponentsExtensions
 		{
 			components.Responses ??= new Dictionary<string, IOpenApiResponse>();
 
-			var problemDetailsSchema = await context.GetOrCreateSchemaAsync(typeof(ProblemDetails), cancellationToken: cancellationToken);
+			var tmp = new ApiParameterDescription()
+			{
+				Name = "test name",
+			};
+
+			var tmp1 = new ProblemDetails()
+			{
+				Type = "https://example.com/probs/out-of-credit",
+				Title = "You do not have enough credit.",
+				Status = StatusCodes.Status403Forbidden,
+				Detail = "Your current balance is 30, but that costs 50.",
+				Instance = "/account/12345/msgs/abc"
+			};
+
+			tmp1.
+			var problemDetailsSchema = await context.GetOrCreateSchemaAsync(typeof(ProblemDetails), tmp, cancellationToken: cancellationToken);
 
 			var internalServerErrorResonse = new OpenApiResponse
 			{

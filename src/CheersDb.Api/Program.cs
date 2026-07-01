@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var appSettings = builder.Configuration.GetAppSettings();
@@ -24,6 +25,11 @@ builder.Services
 			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.JwtAuth!.Key!))
 		};
 	});
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+	options.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+});
 
 // Add services to the container.
 builder.Services.AddControllers();

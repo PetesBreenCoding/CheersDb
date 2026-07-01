@@ -30,7 +30,7 @@ public class ProducersController : ControllerBase
 		var producerDetails = new GetProducerDetailsDto()
 		{
 			Id = id,
-			Name = "Producer Name",
+			Name = "Rye River Brewing Company",
 			Revision = 7,
 			Links =
 			[

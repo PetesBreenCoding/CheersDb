@@ -9,18 +9,18 @@ public class GetProducerDetailsDto
 	/// The id of the producer
 	/// </summary>
 	/// <example>24</example>
-	public int? Id { get; init; }
+	public required int Id { get; init; }
 
 	/// <summary>
 	/// The name of the producer
 	/// </summary>
 	/// <example>Rye River Brewing</example>
-	public string? Name { get; init; }
+	public required string Name { get; init; }
 
 	/// <summary>
 	/// The revision number of the producer
 	/// </summary>
-	public int? Revision { get; init; }
+	public required int Revision { get; init; }
 
 	/// <summary>
 	/// Links related to the producer, such as a self link to retrieve the producer details
@@ -34,5 +34,5 @@ public class GetProducerDetailsDto
 	///		}
 	///	]	
 	/// </example>
-	public List<LinkDto>? Links { get; init; }
+	public required List<LinkDto> Links { get; init; }
 }
