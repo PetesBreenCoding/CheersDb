@@ -1,0 +1,281 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "CheersDb API",
+    "description": "An API for retrieving and altering breweries on the CheersDb platform",
+    "contact": {
+      "name": "CheersDb Support",
+      "url": "https://cheersdb.org/support",
+      "email": "info@cheersdb.org"
+    },
+    "license": {
+      "name": "GPL-3.0",
+      "url": "https://github.com/PetesBreenCoding/CheersDb?tab=GPL-3.0-1-ov-file"
+    },
+    "version": "v1"
+  },
+  "paths": {
+    "/producers/{id}": {
+      "get": {
+        "tags": [
+          "Producers"
+        ],
+        "summary": "Get producer details",
+        "description": "Finds a specific producer usiung the passed id and returns the details in the response body",
+        "operationId": "GetProducerDetails",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the producer to retrieve",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "example": 24
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the requested producer in the response body",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/Cache-Control"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/X-RateLimit-Limit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetProducerDetailsDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Indicates the requested producer was not found, or the URI is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetailsDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "429": {
+            "description": "Indicates that the user has sent too many requests in a given amount of time",
+            "headers": {
+              "Retry-After": {
+                "$ref": "#/components/headers/Retry-After"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [ ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GetProducerDetailsDto": {
+        "required": [
+          "id",
+          "name",
+          "revision",
+          "links"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The id of the producer",
+            "format": "int32",
+            "example": 24
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the producer",
+            "example": "Rye River Brewing"
+          },
+          "revision": {
+            "type": "integer",
+            "description": "The revision number of the producer",
+            "format": "int32"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LinkDto"
+            },
+            "description": "Links related to the producer, such as a self link to retrieve the producer details",
+            "example": [
+              {
+                "rel": "self",
+                "href": "/producers/24",
+                "method": "GET"
+              }
+            ]
+          }
+        },
+        "description": "Details about a producer"
+      },
+      "LinkDto": {
+        "required": [
+          "rel",
+          "href",
+          "method"
+        ],
+        "type": "object",
+        "properties": {
+          "rel": {
+            "type": "string",
+            "description": "The relationship of the link to the current resource",
+            "example": "self"
+          },
+          "href": {
+            "type": "string",
+            "description": "The URL of the link",
+            "example": "/producers/1"
+          },
+          "method": {
+            "type": "string",
+            "description": "The HTTP method for the link",
+            "example": "GET"
+          }
+        },
+        "description": "Represents a hypermedia link in the API response, providing information about the relationship, URL, and HTTP method for the link."
+      },
+      "ProblemDetailsDto": {
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "A URI reference [RFC3986] that identifies the problem type",
+            "example": "https://cheersdb.org/error-codes/e100"
+          },
+          "title": {
+            "type": "string",
+            "description": "A short, human-readable summary of the problem type",
+            "example": "Invalid request"
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code ([RFC7231], Section 6) generated by the origin server for this occurrence of the problem",
+            "format": "int32",
+            "example": 400
+          },
+          "detail": {
+            "type": "string",
+            "description": "A human-readable explanation specific to this occurrence of the problem",
+            "example": "The request payload is missing the required 'username' field."
+          },
+          "instance": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "A URI reference [RFC3986] that identifies the specific occurrence of the problem",
+            "example": "https://cheersdb.org/error-codes/e100/instances/12345"
+          }
+        },
+        "description": "Represents a standardized error response according to RFC 7807 (Problem Details for HTTP APIs)."
+      }
+    },
+    "responses": {
+      "InternalServerError": {
+        "description": "Indicates that an unexpected internal server error has occurred",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetailsDto"
+            }
+          }
+        }
+      }
+    },
+    "headers": {
+      "Cache-Control": {
+        "description": "Instructions for caching mechanisms in responses",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ETag": {
+        "description": "Indicates the current version of the resource",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "Retry-After": {
+        "description": "Indicates how many seconds the user agent should wait before making a follow-up request",
+        "schema": {
+          "type": "number"
+        }
+      },
+      "X-RateLimit-Limit": {
+        "description": "Indicates the maximum number of requests that the user is allowed to make in a given amount of time",
+        "schema": {
+          "type": "number"
+        },
+        "example": 1000
+      },
+      "X-RateLimit-Remaining": {
+        "description": "Indicates the number of requests remaining in the current rate limit window",
+        "schema": {
+          "type": "number"
+        },
+        "example": 999
+      },
+      "X-RateLimit-Reset": {
+        "description": "The number of seconds until the rate limit resets.",
+        "schema": {
+          "type": "number"
+        },
+        "example": 60
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "description": "JWT Bearer token authentication",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": [ ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Producers"
+    }
+  ]
+}
