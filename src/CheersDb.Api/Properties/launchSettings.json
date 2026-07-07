@@ -5,7 +5,7 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "launchUrl": "https://localhost:8339/openapi/v1.json",
+      "launchUrl": "https://localhost:8339/docs",
       "applicationUrl": "https://localhost:8339",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

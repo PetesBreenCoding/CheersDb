@@ -1,4 +1,6 @@
-﻿namespace CheersDb.Api.Extensions;
+﻿using CheersDb.Api.Settings;
+
+namespace CheersDb.Api.Extensions;
 
 /// <summary>
 /// Provides extension methods for the ConfigurationManager class
@@ -17,11 +19,17 @@ public static class ConfigurationManagerExtensions
 			var appSettings = configurationManager.Get<AppSettings>() 
 							?? throw new InvalidOperationException("There was an issue parsing the application settings.");
 
-			if (appSettings.OpenApiInfo is null)
-				throw new InvalidOperationException($"{nameof(AppSettings.OpenApiInfo)} was not parsed in the application settings.");
+			if (appSettings.OpenApi is null)
+				throw new InvalidOperationException($"{nameof(AppSettings.OpenApi)} was not parsed in the application settings.");
 
-			if (string.IsNullOrEmpty(appSettings.OpenApiSecurityScheme?.Name) || string.IsNullOrEmpty(appSettings.OpenApiSecurityScheme?.Scheme))
-				throw new InvalidOperationException($"{nameof(AppSettings.OpenApiSecurityScheme)} was not parsed in the application settings.");
+			if (appSettings.OpenApi.Info is null)
+				throw new InvalidOperationException($"{nameof(AppSettings.OpenApi.Info)} was not parsed in the application settings.");
+			
+			if (appSettings.OpenApi.Servers?.Count is null or 0)
+				throw new InvalidOperationException($"{nameof(AppSettings.OpenApi.Servers)} was not parsed in the application settings.");
+
+			if (string.IsNullOrEmpty(appSettings.OpenApi.Security?.Name) || string.IsNullOrEmpty(appSettings.OpenApi.Security?.Scheme))
+				throw new InvalidOperationException($"{nameof(AppSettings.OpenApi.Security)} was not parsed in the application settings.");
 
 			if (string.IsNullOrEmpty(appSettings.JwtAuth?.Key))
 				throw new InvalidOperationException($"{nameof(AppSettings.JwtAuth)} was not parsed in the application settings.");

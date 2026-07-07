@@ -14,6 +14,16 @@
     },
     "version": "v1"
   },
+  "servers": [
+    {
+      "url": "https://localhost:8339",
+      "description": "Local development server"
+    },
+    {
+      "url": "https://api.cheersdb.org",
+      "description": "Production server"
+    }
+  ],
   "paths": {
     "/producers/{id}": {
       "get": {
@@ -74,8 +84,8 @@
               }
             }
           },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
+          "401": {
+            "description": "Indicates that the user is not authorized to access the resource"
           },
           "429": {
             "description": "Indicates that the user has sent too many requests in a given amount of time",
@@ -84,6 +94,9 @@
                 "$ref": "#/components/headers/Retry-After"
               }
             }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
           }
         },
         "security": [
@@ -234,13 +247,13 @@
       "Retry-After": {
         "description": "Indicates how many seconds the user agent should wait before making a follow-up request",
         "schema": {
-          "type": "number"
+          "type": "string"
         }
       },
       "X-RateLimit-Limit": {
         "description": "Indicates the maximum number of requests that the user is allowed to make in a given amount of time",
         "schema": {
-          "type": "number"
+          "type": "string"
         },
         "example": 1000
       },

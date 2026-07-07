@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi;
+﻿using CheersDb.Api.Settings;
+using Microsoft.OpenApi;
 
 namespace CheersDb.Api.Extensions;
 

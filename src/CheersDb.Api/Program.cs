@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 var appSettings = builder.Configuration.GetAppSettings();
 
 builder.Services
-	.AddAuthentication(appSettings.OpenApiSecurityScheme!.Scheme!)
+	.AddAuthentication(appSettings.OpenApi!.Security!.Scheme!)
 	.AddJwtBearer(options =>
 	{
 		options.TokenValidationParameters = new()
