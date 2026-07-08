@@ -103,11 +103,6 @@ jobs:
               }
             }
 
-            console.log(`issueCount: ${issueCount}`);
-            console.log(`suggestions.documentation: ${JSON.stringify(analysis.suggestions['Documentation'])}`);
-            console.log(`isarray: ${Array.isArray(analysis.suggestions['Documentation'])}`);
-
-
             if (issueCount > 0 
                 && Array.isArray(analysis.suggestions['Documentation']) 
                 && analysis.suggestions['Documentation'].findIndex((s) => s == 'Operation GET /producers/{id} missing examples.') > -1) {
