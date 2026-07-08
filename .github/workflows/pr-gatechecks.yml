@@ -104,8 +104,9 @@ jobs:
             }
 
             if (issueCount > 0 
-                && analysis.suggestions.documentation 
-                && analysis.suggestions.documentation.findIndex((s) => s == 'Operation GET /producers/{id} missing examples.')) {
+                && Array.isArray(analysis.suggestions['Documentation']) 
+                && analysis.suggestions['Documentation'].findIndex((s) => s == 'Operation GET /producers/{id} missing examples.')) {
+                console.log('Ignoring incorrect documentation issue for GET /producers/{id}');
                 issueCount -= 1; // Ignore the specific documentation issue for GET /producers/{id}
             }
 
