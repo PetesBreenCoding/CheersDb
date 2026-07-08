@@ -3,6 +3,13 @@
 /// <summary>
 /// Represents a hypermedia link in the API response, providing information about the relationship, URL, and HTTP method for the link.
 /// </summary>
+/// <example>
+/// {
+///		"rel": "self",
+///		"href": "/producers/24",
+///		"method": "GET"
+///	}
+/// </example>
 public class LinkDto
 {
 	/// <summary>

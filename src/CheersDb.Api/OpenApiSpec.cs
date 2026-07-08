@@ -21,24 +21,17 @@ public static class OpenApiSpec
 	public static readonly OpenApiSchema NumberSchema = new() { Type = JsonSchemaType.Number };
 
 	/// <summary>
-	/// Key for the 401 Unauthorized response in components.Responses.
+	/// Description for the Internal Server Error response
 	/// </summary>
-	public static readonly string UnauthorizedResponseKey = ((int)HttpStatusCode.Unauthorized).ToString();
-
-	/// <summary>
-	/// Key for the 429 Too Many Requests response in components.Responses.
-	/// </summary>
-	public static readonly string TooManyRequestsResponseKey = ((int)HttpStatusCode.TooManyRequests).ToString();
-
-	/// <summary>
-	/// Key for the 500 Internal Server Error response in components.Responses.
-	/// </summary>
-	public static readonly string InternalServerErrorResponseKey = ((int)HttpStatusCode.InternalServerError).ToString();
+	public const string InternalServerErrorDescription = "Indicates that an unexpected internal server error has occurred";
 
 	/// <summary>
 	/// A reusable reference to the Internal Server Error response defined in components.Responses.
 	/// </summary>
-	public static readonly OpenApiResponseReference InternalServerErrorResponse = new(nameof(HttpStatusCode.InternalServerError));
+	public static readonly OpenApiResponseReference InternalServerErrorResponse = new(nameof(HttpStatusCode.InternalServerError))
+	{
+		Description = InternalServerErrorDescription
+	};
 
 	/// <summary>
 	/// Reusable reference for the Cache-Control response header.

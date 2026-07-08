@@ -6,6 +6,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi;
 using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
 
 namespace CheersDb.Api.Extensions;
 
@@ -27,17 +28,24 @@ public static class OpenApiComponentsExtensions
 
 			var problemDetailsSchema = await context.GetOrCreateSchemaAsync(typeof(ProblemDetailsDto), cancellationToken: cancellationToken);
 
-			components.Responses.Add(nameof(HttpStatusCode.InternalServerError), new OpenApiResponse
-			{
-				Description = "Indicates that an unexpected internal server error has occurred",
-				Content = new Dictionary<string, OpenApiMediaType>
-				{
-					[MediaTypeNames.Application.Json] = new OpenApiMediaType
-					{
-						Schema = new OpenApiSchemaReference(nameof(ProblemDetailsDto))
-					}
-				}
-			});
+			//components.Responses.Add(nameof(HttpStatusCode.InternalServerError), new OpenApiResponse
+			//{
+			//	Description = OpenApiSpec.InternalServerErrorDescription,
+			//	Content = new Dictionary<string, OpenApiMediaType>
+			//	{
+			//		[MediaTypeNames.Application.Json] = new OpenApiMediaType
+			//		{
+			//			Schema = new OpenApiSchemaReference(nameof(ProblemDetailsDto)),
+			//			Example = JsonSerializer.SerializeToNode(new ProblemDetailsDto
+			//					{
+			//						Type = "e500",
+			//						Title = "Internal Server Error",
+			//						Status = (int)HttpStatusCode.InternalServerError,
+			//						Detail = "An unexpected internal server error has occurred. Please try again later or contact support if the issue persists."
+			//					}, JsonSerializerOptions.Web)
+			//		}
+			//	}
+			//});
 		}
 
 		/// <summary>
@@ -50,18 +58,21 @@ public static class OpenApiComponentsExtensions
 			var cacheControlHeader = new OpenApiHeader
 			{
 				Description = "Instructions for caching mechanisms in responses",
+				Example = "max-age=3600, must-revalidate",
 				Schema = OpenApiSpec.StringSchema
 			};
 
 			var etagHeader = new OpenApiHeader
 			{
 				Description = "Indicates the current version of the resource",
+				Example = 453,
 				Schema = OpenApiSpec.StringSchema
 			};
 
 			var retryAfterHeader = new OpenApiHeader
 			{
 				Description = "Indicates how many seconds the user agent should wait before making a follow-up request",
+				Example = 60,
 				Schema = OpenApiSpec.StringSchema
 			};
 

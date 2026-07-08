@@ -1,3 +1,5 @@
+using CheersDb.Api.Controllers;
+using CheersDb.Api.Dtos;
 using CheersDb.Api.Http;
 using CheersDb.Api.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -5,6 +7,9 @@ using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi;
 using System.Net;
+using System.Net.Mime;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace CheersDb.Api.Extensions;
 
@@ -21,6 +26,40 @@ public static class OpenApiOptionsExtensions
 			{ new OpenApiSecuritySchemeReference(appSettings?.OpenApi?.Security?.Name ?? JwtBearerDefaults.AuthenticationScheme, document), new List<string>() }
 		};
 	}
+
+	// This is hopefully temporary and response examples would be handled better in future .net versions
+	private static readonly Dictionary<string, JsonNode> _responseExamples = new()
+	{
+		[$"{nameof(ProducersController.GetProducerDetails)}{StatusCodes.Status200OK}"] = JsonSerializer.SerializeToNode(new GetProducerDetailsDto()
+			{
+				Id = 24,
+				Name = "Rye River Brewing Company",
+				Revision = 7,
+				Links =
+					[
+						new LinkDto()
+						{
+							Rel = LinkRels.Self,
+							Href = "/producers/24",
+							Method = HttpMethod.Get.ToString()
+						}
+					]
+			})!,
+		[$"{nameof(ProducersController.GetProducerDetails)}{StatusCodes.Status400BadRequest}"] = JsonSerializer.SerializeToNode(new ProblemDetailsDto()
+		{
+			Type = "https://example.com/producers/bad-request",
+			Title = "Bad Request",
+			Detail = "The request is malformed or contains invalid data",
+			Status = StatusCodes.Status400BadRequest
+		})!,
+		[$"{nameof(ProducersController.GetProducerDetails)}{StatusCodes.Status404NotFound}"] = JsonSerializer.SerializeToNode(new ProblemDetailsDto()
+		{
+			Type = "https://example.com/producers/not-found",
+			Title = "Producer Not Found",
+			Detail = "The requested producer was not found, or the URI is invalid",
+			Status = StatusCodes.Status404NotFound
+		})!
+	};
 
 	extension(OpenApiOptions options)
 	{
@@ -58,12 +97,17 @@ public static class OpenApiOptionsExtensions
 			{
 				operation.Responses ??= [];
 				
-				operation.Responses.Add(OpenApiSpec.UnauthorizedResponseKey, new OpenApiResponse()
+				operation.Responses.Add(StatusCodeStrings.Status401Unauthorized, new OpenApiResponse()
 				{
 					Description = "Indicates that the user is not authorized to access the resource"
 				});
 
-				operation.Responses.Add(OpenApiSpec.TooManyRequestsResponseKey, new OpenApiResponse()
+				operation.Responses.Add(StatusCodeStrings.Status403Forbidden, new OpenApiResponse()
+				{
+					Description = "Indicates that the user is forbidden from accessing the resource"
+				});
+
+				operation.Responses.Add(StatusCodeStrings.Status429TooManyRequests, new OpenApiResponse()
 				{
 					Description = "Indicates that the user has sent too many requests in a given amount of time",
 					Headers = new Dictionary<string, IOpenApiHeader>
@@ -71,10 +115,37 @@ public static class OpenApiOptionsExtensions
 						[HeaderNames.RetryAfter] = OpenApiSpec.RetryAfterHeaderReference
 					}
 				});
-				
-				operation.Responses.Add(OpenApiSpec.InternalServerErrorResponseKey, OpenApiSpec.InternalServerErrorResponse);
 
-				operation.Responses.TryGetValue(((int)HttpStatusCode.OK).ToString(), out var okResponse);
+				//operation.Responses.Add(StatusCodeStrings.Status500InternalServerError, OpenApiSpec.InternalServerErrorResponse);
+
+				operation.Responses.Add(StatusCodeStrings.Status500InternalServerError, new OpenApiResponse
+				{
+					Description = OpenApiSpec.InternalServerErrorDescription,
+					Content = new Dictionary<string, OpenApiMediaType>
+					{
+						[MediaTypeNames.Application.Json] = new OpenApiMediaType
+						{
+							Schema = new OpenApiSchemaReference(nameof(ProblemDetailsDto)),
+							Examples = new Dictionary<string, IOpenApiExample>
+							{
+								[nameof(HttpStatusCode.InternalServerError)] = new OpenApiExample
+								{
+									Summary = "Internal Server Error Example",
+									Description = "An example of an internal server error response",
+									Value = JsonSerializer.SerializeToNode(new ProblemDetailsDto
+									{
+										Type = "e500",
+										Title = "Internal Server Error",
+										Status = (int)HttpStatusCode.InternalServerError,
+										Detail = "An unexpected internal server error has occurred. Please try again later or contact support if the issue persists."
+									}, JsonSerializerOptions.Web)
+								}
+							}
+						}
+					}
+				});
+
+				operation.Responses.TryGetValue(StatusCodeStrings.Status200OK, out var okResponse);
 
 				if (okResponse is not null && okResponse is OpenApiResponse okResponseConcrete)
 				{
@@ -84,6 +155,20 @@ public static class OpenApiOptionsExtensions
 					okResponseConcrete.Headers.Add(NonStandardHeaderNames.XRateLimitLimit, OpenApiSpec.RateLimitLimitHeaderReference);
 					okResponseConcrete.Headers.Add(NonStandardHeaderNames.XRateLimitRemaining, OpenApiSpec.RateLimitRemainingHeaderReference);
 					okResponseConcrete.Headers.Add(NonStandardHeaderNames.XRateLimitReset, OpenApiSpec.RateLimitResetHeaderReference);
+				}
+
+				foreach (var response in operation.Responses)
+				{
+					var responseExampleKey = $"{operation.OperationId}{response.Key}";
+
+					if (!string.IsNullOrEmpty(responseExampleKey) && _responseExamples.TryGetValue(responseExampleKey, out JsonNode? example))
+					{
+						response.Value.Content?[MediaTypeNames.Application.Json]?.Examples ??= new Dictionary<string, IOpenApiExample>();
+						response.Value.Content?[MediaTypeNames.Application.Json]?.Examples?.Add(responseExampleKey, new OpenApiExample
+						{
+							Value = example
+						});
+					}
 				}
 
 				operation.Security ??= [];

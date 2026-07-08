@@ -3,6 +3,20 @@
 /// <summary>
 /// Details about a producer
 /// </summary>
+/// <example>
+///	{
+///		"id": 24,
+///		"name": "Rye River Brewing",
+///		"revision": 7,
+///		"links": [
+///			{
+///				"rel": "self",
+///				"href": "/producers/24",
+///				"method": "GET"
+///			}
+///		]
+///	}
+/// </example>
 public class GetProducerDetailsDto
 {
 	/// <summary>
@@ -20,6 +34,7 @@ public class GetProducerDetailsDto
 	/// <summary>
 	/// The revision number of the producer
 	/// </summary>
+	/// <example>7</example>
 	public required int Revision { get; init; }
 
 	/// <summary>

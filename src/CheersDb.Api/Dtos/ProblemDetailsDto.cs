@@ -3,6 +3,14 @@
 /// <summary>
 /// Represents a standardized error response according to RFC 7807 (Problem Details for HTTP APIs).
 /// </summary>
+/// <example>
+/// {
+///		"type": "https://cheersdb.org/error-codes/e100",
+///		"title": "Bad Request",
+///		"status": 400,
+///		"detail": "The request is malformed or contains invalid data"
+///	}
+/// </example>
 public class ProblemDetailsDto
 {
 	/// <summary>
@@ -33,5 +41,5 @@ public class ProblemDetailsDto
 	/// A URI reference [RFC3986] that identifies the specific occurrence of the problem
 	/// </summary>
 	/// <example>https://cheersdb.org/error-codes/e100/instances/12345</example>
-	public string? Instance { get; set; }
+	//public string? Instance { get; set; }
 }
