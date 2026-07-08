@@ -23,8 +23,8 @@ public class ProducersController : ControllerBase
 	/// <example>GET /producers/24</example>
 	[HttpGet("{id:int}", Name = nameof(GetProducerDetails))]
 	[ProducesResponseType(typeof(GetProducerDetailsDto), StatusCodes.Status200OK, Description = "Returns the requested producer in the response body")]
-	//[ProducesResponseType(StatusCodes.Status400BadRequest, Description = "Indicates that the request is malformed or contains invalid data", Type = typeof(ProblemDetailsDto))]
-	//[ProducesResponseType(StatusCodes.Status404NotFound, Description = "Indicates the requested producer was not found, or the URI is invalid", Type = typeof(ProblemDetailsDto))]
+	[ProducesResponseType(StatusCodes.Status400BadRequest, Description = "Indicates that the request is malformed or contains invalid data", Type = typeof(ProblemDetailsDto))]
+	[ProducesResponseType(StatusCodes.Status404NotFound, Description = "Indicates the requested producer was not found, or the URI is invalid", Type = typeof(ProblemDetailsDto))]
 	[ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, NoStore = false)]
 	public IActionResult GetProducerDetails([FromRoute] int id)
 	{
