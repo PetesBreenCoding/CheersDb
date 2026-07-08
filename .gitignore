@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+#ADDED
+src/CheersDb.Api/CheersDb.Api.json
+
 # User-specific files
 *.rsuser
 *.suo

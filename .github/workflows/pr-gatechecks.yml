@@ -98,7 +98,7 @@ jobs:
 
             let issueCount = 0;
             for (let propKey in categories){
-              if (propKey != 'code_generation' && propKey != 'testing' && propKey != 'monitoring' && propKey != 'Design Patterns'){
+              if (propKey != 'code_generation' && propKey != 'testing' && propKey != 'monitoring' && propKey != 'design_patterns'){
                 issueCount += categories[propKey]
               }
             }
