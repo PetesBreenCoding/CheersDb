@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi;
-using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -116,34 +115,7 @@ public static class OpenApiOptionsExtensions
 					}
 				});
 
-				//operation.Responses.Add(StatusCodeStrings.Status500InternalServerError, OpenApiSpec.InternalServerErrorResponse);
-
-				operation.Responses.Add(StatusCodeStrings.Status500InternalServerError, new OpenApiResponse
-				{
-					Description = OpenApiSpec.InternalServerErrorDescription,
-					Content = new Dictionary<string, OpenApiMediaType>
-					{
-						[MediaTypeNames.Application.Json] = new OpenApiMediaType
-						{
-							Schema = new OpenApiSchemaReference(nameof(ProblemDetailsDto)),
-							Examples = new Dictionary<string, IOpenApiExample>
-							{
-								[nameof(HttpStatusCode.InternalServerError)] = new OpenApiExample
-								{
-									Summary = "Internal Server Error Example",
-									Description = "An example of an internal server error response",
-									Value = JsonSerializer.SerializeToNode(new ProblemDetailsDto
-									{
-										Type = "e500",
-										Title = "Internal Server Error",
-										Status = (int)HttpStatusCode.InternalServerError,
-										Detail = "An unexpected internal server error has occurred. Please try again later or contact support if the issue persists."
-									}, JsonSerializerOptions.Web)
-								}
-							}
-						}
-					}
-				});
+				operation.Responses.Add(StatusCodeStrings.Status500InternalServerError, OpenApiSpec.InternalServerErrorResponse);
 
 				operation.Responses.TryGetValue(StatusCodeStrings.Status200OK, out var okResponse);
 

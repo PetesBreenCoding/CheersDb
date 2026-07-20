@@ -28,24 +28,24 @@ public static class OpenApiComponentsExtensions
 
 			var problemDetailsSchema = await context.GetOrCreateSchemaAsync(typeof(ProblemDetailsDto), cancellationToken: cancellationToken);
 
-			//components.Responses.Add(nameof(HttpStatusCode.InternalServerError), new OpenApiResponse
-			//{
-			//	Description = OpenApiSpec.InternalServerErrorDescription,
-			//	Content = new Dictionary<string, OpenApiMediaType>
-			//	{
-			//		[MediaTypeNames.Application.Json] = new OpenApiMediaType
-			//		{
-			//			Schema = new OpenApiSchemaReference(nameof(ProblemDetailsDto)),
-			//			Example = JsonSerializer.SerializeToNode(new ProblemDetailsDto
-			//					{
-			//						Type = "e500",
-			//						Title = "Internal Server Error",
-			//						Status = (int)HttpStatusCode.InternalServerError,
-			//						Detail = "An unexpected internal server error has occurred. Please try again later or contact support if the issue persists."
-			//					}, JsonSerializerOptions.Web)
-			//		}
-			//	}
-			//});
+			components.Responses.Add(nameof(HttpStatusCode.InternalServerError), new OpenApiResponse
+			{
+				Description = OpenApiSpec.InternalServerErrorDescription,
+				Content = new Dictionary<string, OpenApiMediaType>
+				{
+					[MediaTypeNames.Application.Json] = new OpenApiMediaType
+					{
+						Schema = new OpenApiSchemaReference(nameof(ProblemDetailsDto)),
+						Example = JsonSerializer.SerializeToNode(new ProblemDetailsDto
+						{
+							Type = "e500",
+							Title = "Internal Server Error",
+							Status = (int)HttpStatusCode.InternalServerError,
+							Detail = "An unexpected internal server error has occurred. Please try again later or contact support if the issue persists."
+						}, JsonSerializerOptions.Web)
+					}
+				}
+			});
 		}
 
 		/// <summary>
