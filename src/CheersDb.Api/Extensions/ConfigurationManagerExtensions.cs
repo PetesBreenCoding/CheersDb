@@ -31,9 +31,6 @@ public static class ConfigurationManagerExtensions
 			if (string.IsNullOrEmpty(appSettings.OpenApi.Security?.Name) || string.IsNullOrEmpty(appSettings.OpenApi.Security?.Scheme))
 				throw new InvalidOperationException($"{nameof(AppSettings.OpenApi.Security)} was not parsed in the application settings.");
 
-			if (string.IsNullOrEmpty(appSettings.JwtAuth?.Key))
-				throw new InvalidOperationException($"{nameof(AppSettings.JwtAuth)} was not parsed in the application settings.");
-
 			return appSettings;
 		}
 	}

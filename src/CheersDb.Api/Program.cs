@@ -1,30 +1,13 @@
 using CheersDb.Api.Extensions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
-using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var appSettings = builder.Configuration.GetAppSettings();
 
-builder.Services
-	.AddAuthentication(appSettings.OpenApi!.Security!.Scheme!)
-	.AddJwtBearer(options =>
-	{
-		options.TokenValidationParameters = new()
-		{
-			ValidateIssuer = true,
-			ValidateAudience = true,
-			ValidateLifetime = true,
-			ValidateIssuerSigningKey = true,
-
-			ValidIssuer = appSettings.JwtAuth!.Issuer,
-			ValidAudience = appSettings.JwtAuth!.Audience,
-
-			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.JwtAuth!.Key!))
-		};
-	});
+builder.Services.AddAuthentication(appSettings.OpenApi!.Security!.Scheme!)
+				.AddJwtBearer();
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
@@ -38,6 +21,7 @@ builder.Services.AddAuthorizationBuilder()
 	.SetFallbackPolicy(new AuthorizationPolicyBuilder()
 		.RequireAuthenticatedUser()
 		.Build());
+
 
 builder.Services.AddRouting(options =>
 {
