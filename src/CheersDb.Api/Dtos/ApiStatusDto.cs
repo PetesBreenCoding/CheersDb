@@ -10,7 +10,7 @@ namespace CheersDb.Api.Dtos;
 ///   "version": "1.0.0.0"
 /// }
 /// </example>
-public class HealthStatusDto
+public class ApiStatusDto
 {
 	/// <summary>
 	/// The health status of the API

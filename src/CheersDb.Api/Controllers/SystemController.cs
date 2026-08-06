@@ -10,18 +10,18 @@ namespace CheersDb.Api.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
-public class HealthController : ControllerBase
+public class SystemController : ControllerBase
 {
 	/// <summary>
 	/// Get the health status of the API
 	/// </summary>
 	/// <remarks>Returns the current health status of the API and service information</remarks>
 	/// <returns>The health status of the API</returns>
-	[HttpGet(Name = nameof(GetHealth))]
-	[ProducesResponseType(typeof(HealthStatusDto), StatusCodes.Status200OK, Description = "Indicates the API is healthy and operational")]
-	public IActionResult GetHealth()
+	[HttpGet("status", Name = nameof(GetStatus))]
+	[ProducesResponseType(typeof(ApiStatusDto), StatusCodes.Status200OK, Description = "Indicates the API is healthy and operational")]
+	public IActionResult GetStatus()
 	{
-		var healthStatus = new HealthStatusDto()
+		var healthStatus = new ApiStatusDto()
 		{
 			Status = "Healthy",
 			Timestamp = DateTime.UtcNow,

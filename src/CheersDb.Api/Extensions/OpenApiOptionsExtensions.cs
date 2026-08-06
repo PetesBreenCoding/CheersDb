@@ -1,6 +1,7 @@
 using CheersDb.Api.Controllers;
 using CheersDb.Api.Dtos;
 using CheersDb.Api.Http;
+using CheersDb.Api.OpenApi;
 using CheersDb.Api.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OpenApi;
@@ -94,6 +95,9 @@ public static class OpenApiOptionsExtensions
 		{
 			return options.AddOperationTransformer(async (operation, context, cancellationToken) =>
 			{
+				if (operation.OperationId == nameof(SystemController.GetStatus))
+					operation.AddExtension("x-non-resource", new OpenApiBooleanExtension(true));
+
 				operation.Responses ??= [];
 				
 				operation.Responses.Add(StatusCodeStrings.Status401Unauthorized, new OpenApiResponse()
