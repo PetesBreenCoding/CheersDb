@@ -1,0 +1,12 @@
+@CheersDb.Api_HostAddress = https://localhost:8339
+@BearerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IlBldGVyIiwic3ViIjoiUGV0ZXIiLCJqdGkiOiJiMjA4NzI3ZSIsImF1ZCI6Imh0dHBzOi8vbG9jYWxob3N0OjgzMzkiLCJuYmYiOjE3ODQ1NjMxMTksImV4cCI6MTc5MjUxMTkxOSwiaWF0IjoxNzg0NTYzMTIwLCJpc3MiOiJkb3RuZXQtdXNlci1qd3RzIn0.JmHTxMVhx2jkGaPJstCIETjyRxBejJ7czXAoX66fU6I
+
+### GET health
+GET {{CheersDb.Api_HostAddress}}/health
+Accept: application/json
+Authorization: Bearer {{BearerToken}}
+
+### GET single producer
+GET {{CheersDb.Api_HostAddress}}/producers/24
+Accept: application/json
+Authorization: Bearer {{BearerToken}}

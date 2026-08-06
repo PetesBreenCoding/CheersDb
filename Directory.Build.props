@@ -1,0 +1,10 @@
+<Project>
+	<PropertyGroup>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<LangVersion>14.0</LangVersion>
+		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+		<Nullable>enable</Nullable>
+		<TargetFramework>net10.0</TargetFramework>
+		<Version>0.0.1</Version>
+	</PropertyGroup>
+</Project>
