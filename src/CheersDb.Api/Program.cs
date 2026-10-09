@@ -1,5 +1,7 @@
+using Asp.Versioning;
 using CheersDb.Api.Extensions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
 
@@ -21,7 +23,6 @@ builder.Services.AddAuthorizationBuilder()
 	.SetFallbackPolicy(new AuthorizationPolicyBuilder()
 		.RequireAuthenticatedUser()
 		.Build());
-
 
 builder.Services.AddRouting(options =>
 {
