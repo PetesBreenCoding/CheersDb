@@ -1,16 +1,10 @@
-﻿namespace CheersDb.Api.Dtos;
+﻿using System.Net;
+
+namespace CheersDb.Api.Dtos;
 
 /// <summary>
 /// Represents a standardized error response according to RFC 7807 (Problem Details for HTTP APIs).
 /// </summary>
-/// <example>
-/// {
-///		"type": "https://cheersdb.org/error-codes/e100",
-///		"title": "Bad Request",
-///		"status": 400,
-///		"detail": "The request is malformed or contains invalid data"
-///	}
-/// </example>
 public class ProblemDetailsDto
 {
 	/// <summary>
@@ -42,4 +36,15 @@ public class ProblemDetailsDto
 	/// </summary>
 	/// <example>https://cheersdb.org/error-codes/e100/instances/12345</example>
 	//public string? Instance { get; set; }
+
+	public static ProblemDetailsDto GenerateExample(HttpStatusCode httpStatusCode)
+	{
+		return new ProblemDetailsDto
+		{
+			Type = $"https://cheersdb.org/error-codes/e{(int)httpStatusCode}",
+			Title = httpStatusCode.ToString(),
+			Status = (int)httpStatusCode,
+			Detail = "The request is malformed or contains invalid data"
+		};
+	}
 }

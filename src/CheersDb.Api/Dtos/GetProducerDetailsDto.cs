@@ -1,22 +1,10 @@
-﻿namespace CheersDb.Api.Dtos;
+﻿using CheersDb.Api.Http;
+
+namespace CheersDb.Api.Dtos;
 
 /// <summary>
 /// Details about a producer
 /// </summary>
-/// <example>
-///	{
-///		"id": 24,
-///		"name": "Rye River Brewing",
-///		"revision": 7,
-///		"links": [
-///			{
-///				"rel": "self",
-///				"href": "/producers/24",
-///				"method": "GET"
-///			}
-///		]
-///	}
-/// </example>
 public class GetProducerDetailsDto
 {
 	/// <summary>
@@ -40,14 +28,28 @@ public class GetProducerDetailsDto
 	/// <summary>
 	/// Links related to the producer, such as a self link to retrieve the producer details
 	/// </summary>
-	/// <example>
-	///	[
-	///		{
-	///			"rel": "self",
-	///			"href": "/producers/24",
-	///			"method": "GET"
-	///		}
-	///	]	
-	/// </example>
 	public required List<LinkDto> Links { get; init; }
+
+	/// <summary>
+	/// Generates an example of the GetProducerDetailsDto for documentation purposes
+	/// </summary>
+	/// <returns></returns>
+	public static GetProducerDetailsDto GenerateExample()
+	{
+		return new GetProducerDetailsDto
+		{
+			Id = 24,
+			Name = "Example Producer",
+			Revision = 7,
+			Links =
+			[
+				new LinkDto
+				{
+					Rel = LinkRels.Self,
+					Href = "/producers/24",
+					Method = HttpMethod.Get.ToString()
+				}
+			]
+		};
+	}
 }
