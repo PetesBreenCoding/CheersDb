@@ -26,13 +26,26 @@ jobs:
       - name: 👷 Build
         run: dotnet build --no-restore --configuration Release
 
+      - name: 🧪 Run unit tests with coverlet thresholds
+        id: run-tests
+        uses: alsi-lawr/dotnet-test-coverlet@v1
+        with:
+          project: 'tests/CheersDb.Api.Tests'
+          threshold: 10
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: ${{ steps.run-tests.outputs.coverage-report-path }}  # Use the output from the previous step to upload the report
+
       - name: 🔍 Analyze OpenAPI
         id: analyze
         uses: ApyGuard/apyguard_openapi_analysis@v1.0.9
         with:
           file: ${{ github.workspace }}/src/CheersDb.Api/CheersDb.Api.json
           output_format: json
-       
+
       - name: ✏️ Comment on PR
         uses: actions/github-script@v9
         env:
@@ -42,21 +55,21 @@ jobs:
             const analysis = JSON.parse(process.env.ANALYSIS);
             const categories = analysis.analysis_categories || {};
             const analytics = analysis.analytics || {};
-          
+
             const comment = `## 🔍 OpenAPI Analysis Results
-          
+
             **Valid**: ${analysis.is_valid ? '✅' : '❌'}
             **Total Suggestions**: ${analysis.suggestions ? Object.values(analysis.suggestions).reduce((total, suggestions) => total + suggestions.length, 0) : 0}
-          
+
             ### 📊 Basic Metrics
             - **Operations**: ${analysis.summary ? analysis.summary.operations_count : 0}
             - **Paths**: ${analysis.summary ? analysis.summary.paths_count : 0}
             - **Schemas**: ${analysis.summary ? analysis.summary.schemas_count : 0}
-          
+
             ### 🎯 Advanced Analytics
             - **Complexity Score**: ${analytics.complexity_score || 0}
             - **Maintainability Score**: ${analytics.maintainability_score || 0}/100
-          
+
             ### 📋 Analysis Categories
             - **Security Issues**: ${categories.security || 0}
             - **Performance Issues**: ${categories.performance || 0}
@@ -68,17 +81,17 @@ jobs:
             - **Monitoring Recommendations**: ${categories.monitoring || 0}
             - **Code Generation Opportunities**: ${categories.code_generation || 0}
             - **Governance Issues**: ${categories.governance || 0}
-          
+
             ${analysis.suggestions && Object.keys(analysis.suggestions).length > 0 ? 
               Object.entries(analysis.suggestions).map(([category, suggestions]) => 
                 `### ${category} (${suggestions.length} issues)\n\n${suggestions.slice(0, 3).map(s => `- ${s}`).join('\n')}${suggestions.length > 3 ? `\n- ... and ${suggestions.length - 3} more` : ''}\n`
               ).join('\n') : 
               '### ✅ No suggestions found! Your OpenAPI specification looks great! 🎉'
             }
-          
+
             ---
             *Powered by ApyGuard OpenAPI Analyzer with comprehensive best practices analysis*`;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

@@ -3,6 +3,11 @@
     <File Path=".gitignore" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+  </Folder>
+  <Folder Name="/Solution Items/.github/" />
+  <Folder Name="/Solution Items/.github/workflows/">
+    <File Path=".github/workflows/pr-gatechecks.yml" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/CheersDb.Api.Tests/CheersDb.Api.Tests.csproj" Id="a700d584-a54a-4ddb-a37f-fa41fee03498" />
