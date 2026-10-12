@@ -1,4 +1,3 @@
-using Asp.Versioning;
 using CheersDb.Api.Dtos;
 using CheersDb.Api.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +11,6 @@ namespace CheersDb.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("[controller]")]
-[ApiVersion("1.0")]
 [Produces(MediaTypeNames.Application.Json)]
 public class ProducersController : ControllerBase
 {

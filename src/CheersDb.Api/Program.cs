@@ -1,7 +1,5 @@
-using Asp.Versioning;
 using CheersDb.Api.Extensions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
 

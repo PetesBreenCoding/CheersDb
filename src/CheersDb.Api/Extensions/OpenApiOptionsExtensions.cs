@@ -51,7 +51,11 @@ public static class OpenApiOptionsExtensions
 			document.Security.Add(GetDefaultSecurityRequirement(appSettings, document));
 
 			if (appSettings?.OpenApi?.Servers?.Count > 0)
+			{
 				document.Servers = appSettings.OpenApi.Servers;
+				foreach(var server in document.Servers)
+					server.Url += $"/{AppSettings.LatestApiVersionForUrls}";
+			}
 
 			document.Components ??= new OpenApiComponents();
 
