@@ -29,10 +29,15 @@ jobs:
       - name: 🧪 Run unit tests
         run: dotnet test --no-build --configuration Release
 
-      - name: Install dotnet-coverage
-        run: dotnet tool install --global dotnet-coverage
+      - name: Coverage
+        shell: pwsh
+        run: |
+          dotnet tool install --global dotnet-coverage
+          dotnet-coverage collect "dotnet test --no-build --configuration Release" -f xml -o test-coverage.xml
+          $blockCoverageNode = Select-Xml -Path .\test-coverage.xml -XPath "/results/modules/module[@name='CheersDb.Api.dll']/@block_coverage"
+          Write-Host "Block coverage for CheersDb.Api.dll: $($blockCoverageNode.Node.Value)"
 
-      - name: Check dotnet-coverage version
-        run: dotnet-coverage --version
+
+     
 
       
