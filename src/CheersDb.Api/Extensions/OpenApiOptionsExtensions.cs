@@ -54,8 +54,8 @@ public static class OpenApiOptionsExtensions
 			{
 				document.Servers = appSettings.OpenApi.Servers;
 
-				foreach (var server in document.Servers.Where(srv => !string.IsNullOrEmpty(srv.Url) && !srv.Url.EndsWith(AppSettings.LatestApiVersionUrlAppend)))
-					server.Url += AppSettings.LatestApiVersionUrlAppend;
+				//foreach (var server in document.Servers.Where(srv => !string.IsNullOrEmpty(srv.Url) && !srv.Url.EndsWith(AppSettings.LatestApiVersionUrlAppend)))
+				//	server.Url += AppSettings.LatestApiVersionUrlAppend;
 			}
 
 			document.Components ??= new OpenApiComponents();

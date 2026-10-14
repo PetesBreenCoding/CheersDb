@@ -10,7 +10,7 @@ namespace CheersDb.Api.Controllers;
 /// Controller for managing producers in the CheersDb API.
 /// </summary>
 [ApiController]
-[Route("[controller]")]
+[Route("v1/[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 public class ProducersController : ControllerBase
 {
