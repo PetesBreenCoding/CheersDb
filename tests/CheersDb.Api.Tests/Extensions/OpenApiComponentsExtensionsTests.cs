@@ -1,9 +1,17 @@
+using CheersDb.Api.Dtos;
 using CheersDb.Api.Extensions;
 using CheersDb.Api.Http;
 using FluentAssertions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi;
+using System.Net;
+using System.Net.Mime;
 
 namespace CheersDb.Api.Tests.Extensions;
 
@@ -89,5 +97,47 @@ public class OpenApiComponentsExtensionsTests
 
 		components.SecuritySchemes.Should().ContainSingle()
 			.Which.Should().Be(KeyValuePair.Create<string, IOpenApiSecurityScheme>(JwtBearerDefaults.AuthenticationScheme, scheme));
+	}
+
+	[Fact]
+	public async Task ConfigureResponsesAsync_AddsInternalServerErrorResponse()
+	{
+		OpenApiComponents? configuredComponents = null;
+		var builder = WebApplication.CreateBuilder();
+		builder.Services.AddOpenApi(options => options.AddDocumentTransformer(async (document, context, cancellationToken) =>
+		{
+			document.Components ??= new OpenApiComponents();
+			var components = document.Components;
+			await components.ConfigureResponsesAsync(context, cancellationToken);
+			configuredComponents = components;
+		}));
+
+		await using var app = builder.Build();
+		app.MapOpenApi();
+		app.Urls.Add("http://127.0.0.1:0");
+		await app.StartAsync(TestContext.Current.CancellationToken);
+
+		var address = app.Services.GetRequiredService<IServer>()
+			.Features.Get<IServerAddressesFeature>()!.Addresses.Single();
+		using var httpClient = new HttpClient { BaseAddress = new Uri(address) };
+		using var documentResponse = await httpClient.GetAsync("/openapi/v1.json", TestContext.Current.CancellationToken);
+		documentResponse.EnsureSuccessStatusCode();
+
+		configuredComponents.Should().NotBeNull();
+		configuredComponents!.Responses.Should().ContainKey(nameof(HttpStatusCode.InternalServerError));
+		var response = configuredComponents.Responses[nameof(HttpStatusCode.InternalServerError)]
+			.Should().BeOfType<OpenApiResponse>().Which;
+		response.Description.Should().Be(OpenApiSpec.InternalServerErrorDescription);
+		response.Content.Should().ContainKey(MediaTypeNames.Application.Json);
+
+		var content = response.Content[MediaTypeNames.Application.Json];
+		content.Schema.Should().BeOfType<OpenApiSchemaReference>()
+			.Which.Reference.Should().BeOfType<JsonSchemaReference>()
+			.Which.ReferenceV3.Should().Be($"#/components/schemas/{nameof(ProblemDetailsDto)}");
+		content.Example.Should().NotBeNull();
+		content.Example!["type"]!.GetValue<string>().Should().Be("e500");
+		content.Example["title"]!.GetValue<string>().Should().Be("Internal Server Error");
+		content.Example["status"]!.GetValue<int>().Should().Be((int)HttpStatusCode.InternalServerError);
+		content.Example["detail"]!.GetValue<string>().Should().Be("An unexpected internal server error has occurred. Please try again later or contact support if the issue persists.");
 	}
 }
