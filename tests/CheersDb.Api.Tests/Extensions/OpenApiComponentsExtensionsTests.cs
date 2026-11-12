@@ -1,6 +1,7 @@
 using CheersDb.Api.Extensions;
 using CheersDb.Api.Http;
 using FluentAssertions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi;
 
@@ -54,5 +55,39 @@ public class OpenApiComponentsExtensionsTests
 		components.Headers[NonStandardHeaderNames.XRateLimitReset].Example.Should().NotBeNull();
 		components.Headers[NonStandardHeaderNames.XRateLimitReset].Example!.GetValue<int>().Should().Be(60);
 		components.Headers[NonStandardHeaderNames.XRateLimitReset].Schema.Should().BeSameAs(OpenApiSpec.NumberSchema);
+	}
+
+	[Fact]
+	public void ConfigureSecuritySchemes_NullScheme_DoesNotInitializeSecuritySchemes()
+	{
+		var components = new OpenApiComponents();
+
+		components.ConfigureSecuritySchemes(null);
+
+		components.SecuritySchemes.Should().BeNull();
+	}
+
+	[Fact]
+	public void ConfigureSecuritySchemes_NamedScheme_AddsSchemeUsingItsName()
+	{
+		var components = new OpenApiComponents();
+		var scheme = new OpenApiSecurityScheme { Name = "Custom" };
+
+		components.ConfigureSecuritySchemes(scheme);
+
+		components.SecuritySchemes.Should().ContainSingle()
+			.Which.Should().Be(KeyValuePair.Create<string, IOpenApiSecurityScheme>("Custom", scheme));
+	}
+
+	[Fact]
+	public void ConfigureSecuritySchemes_UnnamedScheme_UsesJwtBearerAuthenticationScheme()
+	{
+		var components = new OpenApiComponents();
+		var scheme = new OpenApiSecurityScheme();
+
+		components.ConfigureSecuritySchemes(scheme);
+
+		components.SecuritySchemes.Should().ContainSingle()
+			.Which.Should().Be(KeyValuePair.Create<string, IOpenApiSecurityScheme>(JwtBearerDefaults.AuthenticationScheme, scheme));
 	}
 }
