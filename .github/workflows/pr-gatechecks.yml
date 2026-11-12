@@ -20,16 +20,19 @@ jobs:
         with:
           dotnet-version: '11.0.x'
 
-      - name: 🔄 Restore
+      - name: 🛠️ Install .NET Tools
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
+      - name: 🔄 Restore Dependencies
         run: dotnet restore
 
-      - name: 👷 Build
+      - name: 👷 Build Solution
         run: dotnet build --no-restore --configuration Release
 
-      - name: 🧪 Run unit tests
+      - name: 🧪 Run Unit Tests
         run: dotnet test --no-build --configuration Release --results-directory TestResults --coverage --coverage-output coverage.cobertura.xml --coverage-output-format cobertura
 
-      - name: 📊 Enforce code coverage
+      - name: 🚦 Enforce Code Coverage
         shell: pwsh
         run: |
           $threshold = 0.05
@@ -47,12 +50,14 @@ jobs:
             Write-Host "::notice title=Coverage Check Passed::✅ Branch coverage $branchRateStr meets required $thresholdStr"
           }
 
-      - name: ⏫ Upload coverage results
-        uses: codecov/codecov-action@v7
+      - name: 📊 Generate Coverage Report
+        shell: pwsh
+        run: |
+          reportgenerator -reports:.\TestResults\coverage.cobertura.xml -targetdir:TestResults\CoverageSummary -reporttypes:MarkdownSummaryGithub
+          Move-Item .\TestResults\CoverageSummary\SummaryGithub.md .\TestResults\CoverageSummary\UnitTestCoverageSummary.md
+
+      - name: ⏫ Upload Coverage Summary
+        uses: actions/upload-artifact@v7
         with:
-          name: cheersdb-codecoverage
-          files: TestResults/coverage.cobertura.xml
-          fail_ci_if_error: true
-          flags: unittests
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true
+          path: TestResults/CoverageSummary/UnitTestCoverageSummary.md
+          archive: false
