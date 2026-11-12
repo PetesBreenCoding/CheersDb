@@ -31,7 +31,7 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: 🧪 Run unit tests
-        run: dotnet test --no-build --configuration Release --results-directory .\TestResults --coverage --coverage-output coverage.cobertura.xml --coverage-output-format cobertura
+        run: dotnet test --no-build --configuration Release --results-directory TestResults --coverage --coverage-output coverage.cobertura.xml --coverage-output-format cobertura
 
       - name: 📊 Enforce code coverage
         shell: pwsh
