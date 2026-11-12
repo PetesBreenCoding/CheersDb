@@ -50,14 +50,8 @@ jobs:
             Write-Host "::notice title=Coverage Check Passed::✅ Branch coverage $branchRateStr meets required $thresholdStr"
           }
 
-      - name: 📊 Generate Coverage Report
+      - name: 📊 Coverage Report
         shell: pwsh
         run: |
           reportgenerator -reports:TestResults/coverage.cobertura.xml -targetdir:TestResults/CoverageSummary -reporttypes:MarkdownSummaryGithub
-          Move-Item .\TestResults\CoverageSummary\SummaryGithub.md .\TestResults\CoverageSummary\UnitTestCoverageSummary.md
-
-      - name: ⏫ Upload Coverage Summary
-        uses: actions/upload-artifact@v7
-        with:
-          path: TestResults/CoverageSummary/UnitTestCoverageSummary.md
-          archive: false
+          Get-Content ./TestResults/CoverageSummary/SummaryGithub.md | Out-File $env:GITHUB_STEP_SUMMARY -Append
