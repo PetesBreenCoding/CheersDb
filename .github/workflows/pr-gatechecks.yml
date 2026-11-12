@@ -20,10 +20,6 @@ jobs:
         with:
           dotnet-version: '11.0.x'
 
-      - name: 🛠️ Install .NET tools
-        run: |
-          dotnet tool install --global dotnet-coverage
-
       - name: 🔄 Restore
         run: dotnet restore
 
@@ -43,9 +39,10 @@ jobs:
           $branchRate = [double]$testCoverage.coverage.'branch-rate'
           $branchRateStr = $branchRate.ToString('P2')
 
-          Write-Host "Branch coverage: $branchRateStr"
-
           if ($branchRate -lt $threshold) {
             Write-Host "::error title=Coverage Check Failed::Branch coverage $branchRateStr is below required $thresholdStr"
             exit 1
+          }
+          else {
+            Write-Host "::notice title=Coverage Check Passed::Branch coverage $branchRateStr meets required $thresholdStr"
           }
