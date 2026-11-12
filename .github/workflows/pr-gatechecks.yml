@@ -18,7 +18,7 @@ jobs:
       - name: 🛠️ Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '11.0.x'
 
       - name: 🔄 Restore
         run: dotnet restore
@@ -34,8 +34,8 @@ jobs:
         run: |
           dotnet tool install --global dotnet-coverage
           dotnet-coverage collect "dotnet test --no-build --configuration Release" -f xml -o test-coverage.xml
-          $blockCoverageNode = Select-Xml -Path .\test-coverage.xml -XPath "/results/modules/module[@name='CheersDb.Api.dll']/@block_coverage"
-          Write-Host "Block coverage for CheersDb.Api.dll: $($blockCoverageNode.Node.Value)"
+          $blockCoverage = Select-Xml -Path .\test-coverage.xml -XPath "/results/modules/module[@name='CheersDb.Api.dll']/@block_coverage"
+          Write-Host "Block coverage for CheersDb.Api.dll: $($blockCoverage.Node.Value)"
 
 
      
