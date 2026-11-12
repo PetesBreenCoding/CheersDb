@@ -40,8 +40,7 @@ jobs:
           $thresholdStr = $threshold.ToString('P2')
 
           [xml]$testCoverage = Get-Content .\TestResults\coverage.cobertura.xml
-          $apiCoverage = $testCoverage.coverage.packages.package[0]
-          $branchRate = [double]$apiCoverage.'branch-rate'
+          $branchRate = [double]$testCoverage.coverage.'branch-rate'
           $branchRateStr = $branchRate.ToString('P2')
 
           Write-Host "Branch coverage: $branchRateStr"
