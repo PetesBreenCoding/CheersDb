@@ -1,6 +1,4 @@
-﻿using CheersDb.Api.Http;
-
-namespace CheersDb.Api.Settings;
+﻿namespace CheersDb.Api.Settings;
 
 /// <summary>
 /// Represents the application settings for the CheersDb API.

@@ -20,6 +20,10 @@ jobs:
         with:
           dotnet-version: '11.0.x'
 
+      - name: 🛠️ Install .NET tools
+        run: |
+          dotnet tool install --global dotnet-coverage
+
       - name: 🔄 Restore
         run: dotnet restore
 
@@ -27,17 +31,19 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: 🧪 Run unit tests
-        run: dotnet test --no-build --configuration Release
+        run: dotnet test --no-build --configuration Release --results-directory .\TestResults --coverage --coverage-output coverage.cobertura.xml --coverage-output-format cobertura
 
-      - name: Coverage
+      - name: 📊 Enforce code coverage
         shell: pwsh
         run: |
-          dotnet tool install --global dotnet-coverage
-          dotnet-coverage collect "dotnet test --no-build --configuration Release" -f xml -o test-coverage.xml
-          $blockCoverage = Select-Xml -Path .\test-coverage.xml -XPath "/results/modules/module[@name='CheersDb.Api.dll']/@block_coverage"
-          Write-Host "Block coverage for CheersDb.Api.dll: $($blockCoverage.Node.Value)"
+          $threshold = 0.05
 
+          [xml]$testCoverage = Get-Content .\TestResults\coverage.cobertura.xml
+          $apiCoverage = $testCoverage.coverage.packages.package[0]
 
-     
+          Write-Host "Branch coverage: $($branchRate.ToString('P2'))"
 
-      
+          if ($branchRate -lt $threshold) {
+            Write-Host "::error title=Coverage Check Failed::Branch coverage $($branchRate.ToString('P2')) is below required $($threshold.ToString('P2'))"
+            exit 1
+          }
