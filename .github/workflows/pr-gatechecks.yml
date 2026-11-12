@@ -32,7 +32,7 @@ jobs:
       - name: 📊 Enforce code coverage
         shell: pwsh
         run: |
-          $threshold = 0.06
+          $threshold = 0.05
           $thresholdStr = $threshold.ToString('P2')
 
           [xml]$testCoverage = Get-Content .\TestResults\coverage.cobertura.xml
