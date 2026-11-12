@@ -37,13 +37,16 @@ jobs:
         shell: pwsh
         run: |
           $threshold = 0.05
+          $thresholdStr = $threshold.ToString('P2')
 
           [xml]$testCoverage = Get-Content .\TestResults\coverage.cobertura.xml
           $apiCoverage = $testCoverage.coverage.packages.package[0]
+          $branchRate = [double]$apiCoverage.'branch-rate'
+          $branchRateStr = $branchRate.ToString('P2')
 
-          Write-Host "Branch coverage: $($branchRate.ToString('P2'))"
+          Write-Host "Branch coverage: $branchRateStr"
 
           if ($branchRate -lt $threshold) {
-            Write-Host "::error title=Coverage Check Failed::Branch coverage $($branchRate.ToString('P2')) is below required $($threshold.ToString('P2'))"
+            Write-Host "::error title=Coverage Check Failed::Branch coverage $branchRateStr is below required $thresholdStr"
             exit 1
           }
