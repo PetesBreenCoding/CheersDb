@@ -53,5 +53,10 @@ jobs:
       - name: 📊 Coverage Report
         shell: pwsh
         run: |
-          reportgenerator -reports:TestResults/coverage.cobertura.xml -targetdir:TestResults/CoverageSummary -reporttypes:MarkdownSummaryGithub
+          reportgenerator `
+            -reports:TestResults/coverage.cobertura.xml `
+            -targetdir:TestResults/CoverageSummary `
+            -reporttypes:MarkdownSummaryGithub `
+            -title:"Unit Test Code Coverage Report"
+
           Get-Content ./TestResults/CoverageSummary/SummaryGithub.md | Out-File $env:GITHUB_STEP_SUMMARY -Append
