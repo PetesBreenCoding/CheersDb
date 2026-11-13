@@ -31,7 +31,7 @@ public static class OpenApiComponentsExtensions
 			components.Responses.Add(nameof(HttpStatusCode.InternalServerError), new OpenApiResponse
 			{
 				Description = OpenApiSpec.InternalServerErrorDescription,
-				Content = new Dictionary<string, OpenApiMediaType>
+				Content = new Dictionary<string, IOpenApiMediaType>
 				{
 					[MediaTypeNames.Application.Json] = new OpenApiMediaType
 					{

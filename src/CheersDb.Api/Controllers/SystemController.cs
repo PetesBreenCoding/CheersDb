@@ -8,7 +8,7 @@ namespace CheersDb.Api.Controllers;
 /// Controller for health status checks in the CheersDb API.
 /// </summary>
 [ApiController]
-[Route("[controller]")]
+[Route("v1/[controller]")]
 [Produces(MediaTypeNames.Application.Json)]
 public class SystemController : ControllerBase
 {

@@ -27,12 +27,12 @@ public static class OpenApiOptionsExtensions
 		};
 	}
 
-	private static readonly Dictionary<string, object> _responseExamples =
+	private static readonly Dictionary<(string OperationId, int StatusCode), object> _responseExamples =
 		new()
 		{
-			[$"{nameof(ProducersController.GetProducerDetails)}{StatusCodes.Status200OK}"] = GetProducerDetailsDto.GenerateExample(),
-			[$"{nameof(ProducersController.GetProducerDetails)}{StatusCodes.Status400BadRequest}"] = ProblemDetailsDto.GenerateExample(HttpStatusCode.BadRequest),
-			[$"{nameof(ProducersController.GetProducerDetails)}{StatusCodes.Status404NotFound}"] = ProblemDetailsDto.GenerateExample(HttpStatusCode.NotFound)
+			[(nameof(ProducersController.GetProducerDetails), StatusCodes.Status200OK)] = GetProducerDetailsDto.GenerateExample(),
+			[(nameof(ProducersController.GetProducerDetails), StatusCodes.Status400BadRequest)] = ProblemDetailsDto.GenerateExample(HttpStatusCode.BadRequest),
+			[(nameof(ProducersController.GetProducerDetails), StatusCodes.Status404NotFound)] = ProblemDetailsDto.GenerateExample(HttpStatusCode.NotFound)
 		};
 
 	/// <summary>
@@ -51,12 +51,7 @@ public static class OpenApiOptionsExtensions
 			document.Security.Add(GetDefaultSecurityRequirement(appSettings, document));
 
 			if (appSettings?.OpenApi?.Servers?.Count > 0)
-			{
 				document.Servers = appSettings.OpenApi.Servers;
-
-				foreach (var server in document.Servers.Where(srv => !string.IsNullOrEmpty(srv.Url) && !srv.Url.EndsWith(AppSettings.LatestApiVersionUrlAppend)))
-					server.Url += AppSettings.LatestApiVersionUrlAppend;
-			}
 
 			document.Components ??= new OpenApiComponents();
 
@@ -110,16 +105,17 @@ public static class OpenApiOptionsExtensions
 				okResponseConcrete.Headers.Add(NonStandardHeaderNames.XRateLimitReset, OpenApiSpec.RateLimitResetHeaderReference);
 			}
 
-
 			foreach (var response in operation.Responses)
 			{
-				var responseExampleKey = $"{operation.OperationId}{response.Key}";
-
-				if (!string.IsNullOrEmpty(responseExampleKey) && _responseExamples.TryGetValue(responseExampleKey, out object? example))
+				if (!string.IsNullOrEmpty(operation.OperationId) 
+					&& int.TryParse(response.Key, out int statusCode)
+					&& _responseExamples.TryGetValue((operation.OperationId, statusCode), out object? example))
 				{
-					var content = response.Value.Content?[MediaTypeNames.Application.Json];
-					content?.Examples ??= new Dictionary<string, IOpenApiExample>();
-					content?.Examples?.Add(responseExampleKey, new OpenApiExample { Value = JsonSerializer.SerializeToNode(example) });
+					if (response.Value.Content?.TryGetValue(MediaTypeNames.Application.Json, out var content) == true && content is OpenApiMediaType openApiMediaType)
+					{
+						openApiMediaType.Examples ??= new Dictionary<string, IOpenApiExample>();
+						openApiMediaType.Examples.Add($"{operation.OperationId}{statusCode}", new OpenApiExample { Value = JsonSerializer.SerializeToNode(example) });
+					}
 				}
 			}
 
