@@ -35,8 +35,8 @@ jobs:
       - name: 🚦 Enforce Code Coverage
         shell: pwsh
         run: |
-          $branchThreshold = 0.10
-          $lineThreshold = 0.20
+          $branchThreshold = 0.15
+          $lineThreshold = 0.30
 
           $branchThresholdStr = $branchThreshold.ToString('P2')
           $lineThresholdStr = $lineThreshold.ToString('P2')

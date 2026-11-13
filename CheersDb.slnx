@@ -10,6 +10,7 @@
     <File Path=".github/workflows/pr-gatechecks.yml" />
   </Folder>
   <Folder Name="/Solution Items/scripts/">
+    <File Path="scripts/CheckCoverage.ps1" />
     <File Path="scripts/GenerateAuthToken.ps1" />
   </Folder>
   <Folder Name="/tests/">
