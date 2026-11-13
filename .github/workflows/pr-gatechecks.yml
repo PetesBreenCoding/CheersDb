@@ -30,68 +30,13 @@ jobs:
       - name: 🧪 Run Unit Tests
         run: dotnet test --no-build --configuration Release --results-directory TestResults --coverage --coverage-output coverage.cobertura.xml --coverage-output-format cobertura
 
-      - name: 🚦 Code Coverage Gatecheck
-        shell: pwsh
-        run: |
-          $branchThreshold = 0.15
-          $lineThreshold = 0.30
-
-          $branchThresholdStr = $branchThreshold.ToString('P2')
-          $lineThresholdStr = $lineThreshold.ToString('P2')
-
-          [xml]$testCoverage = Get-Content .\TestResults\coverage.cobertura.xml
-          $branchRate = [double]$testCoverage.coverage.'branch-rate'
-          $lineRate = [double]$testCoverage.coverage.'line-rate'
-          $branchRateStr = $branchRate.ToString('P2')
-          $lineRateStr = $lineRate.ToString('P2')
-
-          $exitCode = 0
-
-          if ($branchRate -lt $branchThreshold) {
-            Write-Host "::error title=Coverage Check Failed::Branch coverage $branchRateStr is below required $branchThresholdStr"
-            $exitCode = 1
-          }
-          else {
-            Write-Host "::notice title=Coverage Check Passed::✅ Branch coverage $branchRateStr meets required $branchThresholdStr"
-          }
-
-          if ($lineRate -lt $lineThreshold) {
-            Write-Host "::error title=Coverage Check Failed::Line coverage $lineRateStr is below required $lineThresholdStr"
-            $exitCode = 1
-          }
-          else {
-            Write-Host "::notice title=Coverage Check Passed::✅ Line coverage $lineRateStr meets required $lineThresholdStr"
-          }
-
-          exit $exitCode
-
       - name: 🔍 Analyze OpenAPI
         id: analyze
         uses: ApyGuard/apyguard_openapi_analysis@v1.0.9
         with:
           file: ${{ github.workspace }}/src/CheersDb.Api/CheersDb.Api.json
           output_format: json
-
-      - name: 🚦 OpenAPI Gatecheck
-        uses: actions/github-script@v9
-        env:
-          ANALYSIS: ${{ steps.analyze.outputs.analysis }}
-        with:
-          script: |
-            const analysis = JSON.parse(process.env.ANALYSIS);
-            const categories = analysis.analysis_categories || {};
-            const issueCount = categories.security + categories.performance + categories.versioning + categories.compliance + categories.governance;
-
-            if (analysis.is_valid && issueCount === 0) {
-              console.log('✔️ OpenAPI analysis passed');
-              process.exit(0);
-            } else {
-              console.log(`Valid: ${analysis.is_valid}`);
-              console.log(`Total blocking issues: ${issueCount}`);
-              console.error('❌ OpenAPI analysis failed');
-              process.exit(1);
-            }
-
+      
       - name: 📋 Unit Test Coverage Report
         shell: pwsh
         run: |
@@ -153,3 +98,58 @@ jobs:
             *Powered by ApyGuard OpenAPI Analyzer with comprehensive best practices analysis*`;
 
             fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
+
+      - name: 🚦 Code Coverage Gatecheck
+        shell: pwsh
+        run: |
+          $branchThreshold = 0.15
+          $lineThreshold = 0.30
+
+          $branchThresholdStr = $branchThreshold.ToString('P2')
+          $lineThresholdStr = $lineThreshold.ToString('P2')
+
+          [xml]$testCoverage = Get-Content .\TestResults\coverage.cobertura.xml
+          $branchRate = [double]$testCoverage.coverage.'branch-rate'
+          $lineRate = [double]$testCoverage.coverage.'line-rate'
+          $branchRateStr = $branchRate.ToString('P2')
+          $lineRateStr = $lineRate.ToString('P2')
+
+          $exitCode = 0
+
+          if ($branchRate -lt $branchThreshold) {
+            Write-Host "::error title=Coverage Check Failed::Branch coverage $branchRateStr is below required $branchThresholdStr"
+            $exitCode = 1
+          }
+          else {
+            Write-Host "::notice title=Coverage Check Passed::✅ Branch coverage $branchRateStr meets required $branchThresholdStr"
+          }
+
+          if ($lineRate -lt $lineThreshold) {
+            Write-Host "::error title=Coverage Check Failed::Line coverage $lineRateStr is below required $lineThresholdStr"
+            $exitCode = 1
+          }
+          else {
+            Write-Host "::notice title=Coverage Check Passed::✅ Line coverage $lineRateStr meets required $lineThresholdStr"
+          }
+
+          exit $exitCode
+
+      - name: 🚦 OpenAPI Gatecheck
+        uses: actions/github-script@v9
+        env:
+          ANALYSIS: ${{ steps.analyze.outputs.analysis }}
+        with:
+          script: |
+            const analysis = JSON.parse(process.env.ANALYSIS);
+            const categories = analysis.analysis_categories || {};
+            const issueCount = categories.security + categories.performance + categories.versioning + categories.compliance + categories.governance;
+
+            if (analysis.is_valid && issueCount === 0) {
+              console.log('✔️ OpenAPI analysis passed');
+              process.exit(0);
+            } else {
+              console.log(`Valid: ${analysis.is_valid}`);
+              console.log(`Total blocking issues: ${issueCount}`);
+              console.error('❌ OpenAPI analysis failed');
+              process.exit(1);
+            }
