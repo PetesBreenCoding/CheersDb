@@ -35,20 +35,37 @@ jobs:
       - name: 🚦 Enforce Code Coverage
         shell: pwsh
         run: |
-          $threshold = 0.08
-          $thresholdStr = $threshold.ToString('P2')
+          $branchThreshold = 0.10
+          $lineThreshold = 0.20
+
+          $branchThresholdStr = $branchThreshold.ToString('P2')
+          $lineThresholdStr = $lineThreshold.ToString('P2')
 
           [xml]$testCoverage = Get-Content .\TestResults\coverage.cobertura.xml
           $branchRate = [double]$testCoverage.coverage.'branch-rate'
+          $lineRate = [double]$testCoverage.coverage.'line-rate'
           $branchRateStr = $branchRate.ToString('P2')
+          $lineRateStr = $lineRate.ToString('P2')
 
-          if ($branchRate -lt $threshold) {
-            Write-Host "::error title=Coverage Check Failed::Branch coverage $branchRateStr is below required $thresholdStr"
-            exit 1
+          $exitCode = 0
+
+          if ($branchRate -lt $branchThreshold) {
+            Write-Host "::error title=Coverage Check Failed::Branch coverage $branchRateStr is below required $branchThresholdStr"
+            $exitCode = 1
           }
           else {
-            Write-Host "::notice title=Coverage Check Passed::✅ Branch coverage $branchRateStr meets required $thresholdStr"
+            Write-Host "::notice title=Coverage Check Passed::✅ Branch coverage $branchRateStr meets required $branchThresholdStr"
           }
+
+          if ($lineRate -lt $lineThreshold) {
+            Write-Host "::error title=Coverage Check Failed::Line coverage $lineRateStr is below required $lineThresholdStr"
+            $exitCode = 1
+          }
+          else {
+            Write-Host "::notice title=Coverage Check Passed::✅ Line coverage $lineRateStr meets required $lineThresholdStr"
+          }
+
+          exit $exitCode
 
       - name: 📊 Coverage Report
         shell: pwsh
