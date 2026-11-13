@@ -145,11 +145,11 @@ jobs:
             const issueCount = categories.security + categories.performance + categories.versioning + categories.compliance + categories.governance;
 
             if (analysis.is_valid && issueCount === 0) {
-              console.log('✔️ OpenAPI analysis passed');
+              console.log('::notice title=OpenAPI analysis Passed::✔️ OpenAPI analysis passed');
               process.exit(0);
             } else {
               console.log(`Valid: ${analysis.is_valid}`);
               console.log(`Total blocking issues: ${issueCount}`);
-              console.error('❌ OpenAPI analysis failed');
+              console.error('::error title=OpenAPI analysis failed::❌ OpenAPI analysis failed');
               process.exit(1);
             }
