@@ -148,8 +148,28 @@ jobs:
               console.log('::notice title=OpenAPI analysis Passed::✔️ OpenAPI analysis passed');
               process.exit(0);
             } else {
-              console.log(`Valid: ${analysis.is_valid}`);
-              console.log(`Total blocking issues: ${issueCount}`);
-              console.error('::error title=OpenAPI analysis failed::❌ OpenAPI analysis failed');
+              let errorMessages = [];
+
+              if (!analysis.is_valid) {
+                errorMessages.push('OpenAPI spec is invalid');
+              }
+              if (categories.security > 0) {
+                errorMessages.push(`Security: ${categories.security}`);
+              } 
+              if (categories.performance > 0) {
+                errorMessages.push(`Performance: ${categories.performance}`);
+              } 
+              if (categories.versioning > 0) {
+                errorMessages.push(`Versioning: ${categories.versioning}`);
+              } 
+              if (categories.compliance > 0) {
+                errorMessages.push(`Compliance: ${categories.compliance}`);
+              } 
+              if (categories.governance > 0) {
+                errorMessages.push(`Governance: ${categories.governance}`);
+              } 
+
+              console.error(`::error title=OpenAPI analysis failed::❌ OpenAPI analysis failed. Issues listed below.`);
+              console.error(`::error title=Issue List::${errorMessages.join(', ')}`);
               process.exit(1);
             }
