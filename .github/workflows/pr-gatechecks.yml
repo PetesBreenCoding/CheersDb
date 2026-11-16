@@ -154,22 +154,21 @@ jobs:
                 errorMessages.push('OpenAPI spec is invalid');
               }
               if (categories.security > 0) {
-                errorMessages.push(`Security: ${categories.security}`);
+                errorMessages.push(`${categories.security} security issue(s)`);
               } 
               if (categories.performance > 0) {
-                errorMessages.push(`Performance: ${categories.performance}`);
+                errorMessages.push(`${categories.performance} performance issue(s)`);
               } 
               if (categories.versioning > 0) {
-                errorMessages.push(`Versioning: ${categories.versioning}`);
+                errorMessages.push(`${categories.versioning} versioning issue(s)`);
               } 
               if (categories.compliance > 0) {
-                errorMessages.push(`Compliance: ${categories.compliance}`);
+                errorMessages.push(`${categories.compliance} compliance issue(s)`);
               } 
               if (categories.governance > 0) {
-                errorMessages.push(`Governance: ${categories.governance}`);
+                errorMessages.push(`${categories.governance} governance issue(s)`);
               } 
 
-              console.error(`::error title=OpenAPI analysis failed::❌ OpenAPI analysis failed. Issues listed below.`);
-              console.error(`::error title=Issue List::${errorMessages.join(', ')}`);
+              console.error(`::error title=OpenAPI analysis failed::${errorMessages.join(', ')`);
               process.exit(1);
             }
