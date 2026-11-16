@@ -169,6 +169,6 @@ jobs:
                 errorMessages.push(`${categories.governance} governance issue(s)`);
               } 
 
-              console.error(`::error title=OpenAPI analysis failed::${errorMessages.join(', ')`);
+              console.error(`::error title=OpenAPI analysis failed::${errorMessages.join(', ')}`);
               process.exit(1);
             }
