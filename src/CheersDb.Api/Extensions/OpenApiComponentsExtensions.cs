@@ -66,21 +66,21 @@ public static class OpenApiComponentsExtensions
 			{
 				Description = "Indicates the current version of the resource",
 				Example = 453,
-				Schema = OpenApiSpec.StringSchema
+				Schema = OpenApiSpec.NumberSchema
 			};
 
 			var retryAfterHeader = new OpenApiHeader
 			{
 				Description = "Indicates how many seconds the user agent should wait before making a follow-up request",
 				Example = 60,
-				Schema = OpenApiSpec.StringSchema
+				Schema = OpenApiSpec.NumberSchema
 			};
 
 			var rateLimitLimitHeader = new OpenApiHeader
 			{
 				Description = "Indicates the maximum number of requests that the user is allowed to make in a given amount of time",
 				Example = 1000,
-				Schema = OpenApiSpec.StringSchema,
+				Schema = OpenApiSpec.NumberSchema,
 			};
 
 			var rateLimitRemainingHeader = new OpenApiHeader

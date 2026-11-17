@@ -114,7 +114,9 @@ public static class OpenApiOptionsExtensions
 					if (response.Value.Content?.TryGetValue(MediaTypeNames.Application.Json, out var content) == true && content is OpenApiMediaType openApiMediaType)
 					{
 						openApiMediaType.Examples ??= new Dictionary<string, IOpenApiExample>();
-						openApiMediaType.Examples.Add($"{operation.OperationId}{statusCode}", new OpenApiExample { Value = JsonSerializer.SerializeToNode(example) });
+						openApiMediaType.Examples.Add($"{operation.OperationId}{statusCode}", 
+							new OpenApiExample { Value = JsonSerializer.SerializeToNode(example, JsonSerializerOptions.Web) }
+						);
 					}
 				}
 			}
