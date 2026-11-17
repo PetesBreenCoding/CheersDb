@@ -6,6 +6,8 @@ on:
 
 jobs:
   pr-gatechecks:
+    permissions:
+      pull-requests: write
     name: PR Gatechecks
     runs-on: ubuntu-latest
 
