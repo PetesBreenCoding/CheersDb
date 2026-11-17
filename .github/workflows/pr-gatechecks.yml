@@ -29,14 +29,7 @@ jobs:
 
       - name: 🧪 Run Unit Tests
         run: dotnet test --no-build --configuration Release --results-directory TestResults --coverage --coverage-output coverage.cobertura.xml --coverage-output-format cobertura
-
-      - name: 🔍 Analyze OpenAPI
-        id: analyze
-        uses: ApyGuard/apyguard_openapi_analysis@v1.0.9
-        with:
-          file: ${{ github.workspace }}/src/CheersDb.Api/CheersDb.Api.json
-          output_format: json
-      
+     
       - name: 📋 Unit Test Coverage Report
         shell: pwsh
         run: |
@@ -48,56 +41,10 @@ jobs:
 
           Get-Content ./TestResults/CoverageSummary/SummaryGithub.md | Out-File $env:GITHUB_STEP_SUMMARY -Append
 
-      - name: 📋 OpenAPI Analysis Report
-        uses: actions/github-script@v9
-        env:
-          ANALYSIS: ${{ steps.analyze.outputs.analysis }}
+      - uses: pb33f/vacuum-action@v2
         with:
-          script: |
-            const fs = require('fs');
-            const analysis = JSON.parse(process.env.ANALYSIS);
-            const categories = analysis.analysis_categories || {};
-            const analytics = analysis.analytics || {};
-            const suggestions = analysis.suggestions || {};
-            const suggestionCount = Object.values(suggestions).reduce((total, items) => total + items.length, 0);
-
-            const summary = `## 🔍 OpenAPI Analysis Results
-
-            **Valid**: ${analysis.is_valid ? '✅' : '❌'}
-            **Total Suggestions**: ${suggestionCount}
-
-            ### 📊 Basic Metrics
-            - **Operations**: ${analysis.summary?.operations_count || 0}
-            - **Paths**: ${analysis.summary?.paths_count || 0}
-            - **Schemas**: ${analysis.summary?.schemas_count || 0}
-
-            ### 🎯 Advanced Analytics
-            - **Complexity Score**: ${analytics.complexity_score || 0}
-            - **Maintainability Score**: ${analytics.maintainability_score || 0}/100
-
-            ### 📋 Analysis Categories
-            - **Security Issues**: ${categories.security || 0}
-            - **Performance Issues**: ${categories.performance || 0}
-            - **Design Pattern Issues**: ${categories.design_patterns || 0}
-            - **Versioning Issues**: ${categories.versioning || 0}
-            - **Documentation Issues**: ${categories.documentation || 0}
-            - **Compliance Issues**: ${categories.compliance || 0}
-            - **Testing Recommendations**: ${categories.testing || 0}
-            - **Monitoring Recommendations**: ${categories.monitoring || 0}
-            - **Code Generation Opportunities**: ${categories.code_generation || 0}
-            - **Governance Issues**: ${categories.governance || 0}
-
-            ${Object.keys(suggestions).length > 0
-              ? Object.entries(suggestions).map(([category, items]) =>
-                `### ${category} (${items.length} issues)\n\n${items.slice(0, 3).map(item => `- ${item}`).join('\n')}${items.length > 3 ? `\n- ... and ${items.length - 3} more` : ''}\n`
-              ).join('\n')
-              : '### ✅ No suggestions found! Your OpenAPI specification looks great! 🎉'
-            }
-
-            ---
-            *Powered by ApyGuard OpenAPI Analyzer with comprehensive best practices analysis*`;
-
-            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
+          openapi_path: CheersDb.Api.json
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🚦 Code Coverage Gatecheck
         shell: pwsh
@@ -133,43 +80,3 @@ jobs:
           }
 
           exit $exitCode
-
-      - name: 🚦 OpenAPI Gatecheck
-        uses: actions/github-script@v9
-        env:
-          ANALYSIS: ${{ steps.analyze.outputs.analysis }}
-        with:
-          script: |
-            const analysis = JSON.parse(process.env.ANALYSIS);
-            const categories = analysis.analysis_categories || {};
-            const issueCount = categories.security + categories.performance + categories.versioning + categories.compliance + categories.governance;
-
-            if (analysis.is_valid && issueCount === 0) {
-              console.log('::notice title=OpenAPI analysis Passed::✔️ OpenAPI analysis passed');
-              process.exit(0);
-            } else {
-              let errorMessages = [];
-
-              if (!analysis.is_valid) {
-                errorMessages.push('OpenAPI spec is invalid');
-              }
-              if (categories.security > 0) {
-                errorMessages.push(`Security: ${categories.security}`);
-              } 
-              if (categories.performance > 0) {
-                errorMessages.push(`Performance: ${categories.performance}`);
-              } 
-              if (categories.versioning > 0) {
-                errorMessages.push(`Versioning: ${categories.versioning}`);
-              } 
-              if (categories.compliance > 0) {
-                errorMessages.push(`Compliance: ${categories.compliance}`);
-              } 
-              if (categories.governance > 0) {
-                errorMessages.push(`Governance: ${categories.governance}`);
-              } 
-
-              console.error(`::error title=OpenAPI analysis failed::❌ OpenAPI analysis failed. Issues listed below.`);
-              console.error(`::error title=Issue List::${errorMessages.join(', ')}`);
-              process.exit(1);
-            }
