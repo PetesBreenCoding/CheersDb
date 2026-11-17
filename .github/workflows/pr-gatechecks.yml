@@ -43,7 +43,7 @@ jobs:
 
       - uses: pb33f/vacuum-action@v2
         with:
-          openapi_path: CheersDb.Api.json
+          openapi_path: src/CheersDb.Api/CheersDb.Api.json
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🚦 Code Coverage Gatecheck
