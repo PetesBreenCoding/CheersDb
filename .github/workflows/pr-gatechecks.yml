@@ -43,11 +43,6 @@ jobs:
 
           Get-Content ./TestResults/CoverageSummary/SummaryGithub.md | Out-File $env:GITHUB_STEP_SUMMARY -Append
 
-      - uses: pb33f/vacuum-action@v2
-        with:
-          openapi_path: src/CheersDb.Api/CheersDb.Api.json
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: 🚦 Code Coverage Gatecheck
         shell: pwsh
         run: |
@@ -82,3 +77,10 @@ jobs:
           }
 
           exit $exitCode
+
+      - name: 🔍 Analyze OpenAPI
+        uses: pb33f/vacuum-action@v2
+        with:
+          openapi_path: src/CheersDb.Api/CheersDb.Api.json
+          minimum_score: 100
+          github_token: ${{ secrets.GITHUB_TOKEN }}
