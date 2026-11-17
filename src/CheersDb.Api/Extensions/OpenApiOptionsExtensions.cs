@@ -58,6 +58,9 @@ public static class OpenApiOptionsExtensions
 			await document.Components.ConfigureResponsesAsync(context, cancellationToken);
 			document.Components.ConfigureHeaders();
 			document.Components.ConfigureSecuritySchemes(appSettings?.OpenApi?.Security);
+
+			if (appSettings?.OpenApi?.Tags?.Count > 0)
+				document.Tags = appSettings.OpenApi.Tags;
 		});
 	}
 

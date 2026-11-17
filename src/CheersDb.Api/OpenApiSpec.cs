@@ -28,10 +28,7 @@ public static class OpenApiSpec
 	/// <summary>
 	/// A reusable reference to the Internal Server Error response defined in components.Responses.
 	/// </summary>
-	public static readonly OpenApiResponseReference InternalServerErrorResponse = new(nameof(HttpStatusCode.InternalServerError))
-	{
-		Description = InternalServerErrorDescription
-	};
+	public static readonly OpenApiResponseReference InternalServerErrorResponse = new(nameof(HttpStatusCode.InternalServerError));
 
 	/// <summary>
 	/// Reusable reference for the Cache-Control response header.

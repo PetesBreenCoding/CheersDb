@@ -21,4 +21,9 @@ public class OpenApiAppSettings
 	/// Gets the list of OpenAPI servers for the API, which defines the available server URLs and descriptions.
 	/// </summary>
 	public List<OpenApiServer>? Servers { get; init; }
+
+	/// <summary>
+	/// Gets the OpenAPI tags.
+	/// </summary>
+	public HashSet<OpenApiTag>? Tags { get; init; }
 }
