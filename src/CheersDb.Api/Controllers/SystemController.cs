@@ -12,11 +12,8 @@ namespace CheersDb.Api.Controllers;
 [Produces(MediaTypeNames.Application.Json)]
 public class SystemController : ControllerBase
 {
-	/// <summary>
-	/// Get the health status of the API
-	/// </summary>
+	/// <summary>Get the health status of the API</summary>
 	/// <remarks>Returns the current health status of the API and service information</remarks>
-	/// <returns>The health status of the API</returns>
 	[HttpGet("status", Name = nameof(GetStatus))]
 	[ProducesResponseType(typeof(ApiStatusDto), StatusCodes.Status200OK, Description = "Indicates the API is healthy and operational")]
 	public IActionResult GetStatus()

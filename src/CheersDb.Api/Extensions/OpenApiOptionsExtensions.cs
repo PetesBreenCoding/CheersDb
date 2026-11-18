@@ -77,17 +77,17 @@ public static class OpenApiOptionsExtensions
 			operation.Responses ??= [];
 			operation.Responses.Add(StatusCodeStrings.Status401Unauthorized, new OpenApiResponse()
 			{
-				Description = "Indicates that the user is not authorized to access the resource"
+				Description = $"Indicates that the user is not authorized to access {operation.OperationId}"
 			});
 
 			operation.Responses.Add(StatusCodeStrings.Status403Forbidden, new OpenApiResponse()
 			{
-				Description = "Indicates that the user is forbidden from accessing the resource"
+				Description = $"Indicates that the user is forbidden from accessing {operation.OperationId}"
 			});
 
 			operation.Responses.Add(StatusCodeStrings.Status429TooManyRequests, new OpenApiResponse()
 			{
-				Description = "Indicates that the user has sent too many requests in a given amount of time",
+				Description = $"Indicates that the user has sent too many requests in a given amount of time to {operation.OperationId}",
 				Headers = new Dictionary<string, IOpenApiHeader>
 				{
 					[HeaderNames.RetryAfter] = OpenApiSpec.RetryAfterHeaderReference
