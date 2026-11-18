@@ -1,6 +1,7 @@
 using CheersDb.Api.Extensions;
 using CheersDb.Api.Settings;
 using FluentAssertions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -15,6 +16,31 @@ namespace CheersDb.Api.Tests.Extensions;
 
 public class ServiceCollectionExtensionsTests
 {
+	[Fact]
+	public void AddConfiguredAuthorization_ReturnsBuilderForSameServiceCollection()
+	{
+		var services = new ServiceCollection();
+
+		var result = services.AddConfiguredAuthorization();
+
+		result.Services.Should().BeSameAs(services);
+	}
+
+	[Fact]
+	public void AddConfiguredAuthorization_ConfiguresAuthenticatedUserFallbackPolicy()
+	{
+		var services = new ServiceCollection();
+		services.AddConfiguredAuthorization();
+		using var provider = services.BuildServiceProvider();
+
+		var authorizationOptions = provider.GetRequiredService<IOptions<AuthorizationOptions>>().Value;
+		var fallbackPolicy = authorizationOptions.FallbackPolicy;
+
+		fallbackPolicy.Should().NotBeNull();
+		fallbackPolicy!.Requirements.Should().ContainSingle();
+		fallbackPolicy.Requirements.Single().GetType().Name.Should().Be("DenyAnonymousAuthorizationRequirement");
+	}
+
 	[Fact]
 	public void AddConfiguredRouting_ReturnsSameServiceCollection()
 	{

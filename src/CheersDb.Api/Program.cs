@@ -1,6 +1,4 @@
 using CheersDb.Api.Extensions;
-using Microsoft.AspNetCore.Authorization;
-using Scalar.AspNetCore;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,10 +15,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 // Add services to the container.
 builder.Services.AddControllers();
 
-builder.Services.AddAuthorizationBuilder()
-	.SetFallbackPolicy(new AuthorizationPolicyBuilder()
-		.RequireAuthenticatedUser()
-		.Build());
+builder.Services.AddConfiguredAuthorization();
 
 builder.Services.AddConfiguredRouting();
 
@@ -30,11 +25,7 @@ builder.Services.AddSingleton(appSettings);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-	app.MapOpenApi().AllowAnonymous();
-	app.MapScalarApiReference("/docs").AllowAnonymous();
-}
+app.MapOpenApiSpec();
 
 app.UseHttpsRedirection();
 

@@ -1,4 +1,4 @@
-Push-Location C:\Dev\GitRepos\CheersDb
+Push-Location $env:GitRoot\CheersDb
 
 dotnet test --configuration Release --results-directory .\TestResults --coverage --coverage-output coverage.cobertura.xml --coverage-output-format cobertura
 [xml]$testCoverage = Get-Content .\TestResults\coverage.cobertura.xml
