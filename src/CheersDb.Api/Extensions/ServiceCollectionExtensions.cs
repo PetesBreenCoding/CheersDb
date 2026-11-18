@@ -1,6 +1,8 @@
 ﻿using CheersDb.Api.Settings;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi;
+using System.Text.Json.Serialization;
 
 namespace CheersDb.Api.Extensions;
 
@@ -11,6 +13,16 @@ public static class ServiceCollectionExtensions
 {
 	extension(IServiceCollection services) 
 	{
+		/// <summary>
+		/// Configures authentication using the configured OpenAPI security scheme and JWT bearer authentication.
+		/// </summary>
+		/// <param name="appSettings">The application settings containing the OpenAPI security scheme.</param>
+		/// <returns>An authentication builder configured with JWT bearer authentication.</returns>
+		public AuthenticationBuilder AddConfiguredAuthentication(AppSettings appSettings)
+		{
+			return services.AddAuthentication(appSettings.OpenApi!.Security!.Scheme!).AddJwtBearer();
+		}
+
 		/// <summary>
 		/// Configures authorization to require authenticated users by default.
 		/// </summary>
@@ -48,6 +60,18 @@ public static class ServiceCollectionExtensions
 			{
 				options.LowercaseUrls = true;
 				options.LowercaseQueryStrings = true;
+			});
+		}
+
+		/// <summary>
+		/// Configures HTTP JSON serialization to use strict number handling.
+		/// </summary>
+		/// <returns>The service collection with strict HTTP JSON number handling configured.</returns>
+		public IServiceCollection ConfigureJson()
+		{
+			return services.ConfigureHttpJsonOptions(options =>
+			{
+				options.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
 			});
 		}
 	}

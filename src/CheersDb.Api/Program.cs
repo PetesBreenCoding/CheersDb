@@ -1,16 +1,11 @@
 using CheersDb.Api.Extensions;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var appSettings = builder.Configuration.GetAppSettings();
 
-builder.Services.AddAuthentication(appSettings.OpenApi!.Security!.Scheme!)
-				.AddJwtBearer();
+builder.Services.AddConfiguredAuthentication(appSettings);
 
-builder.Services.ConfigureHttpJsonOptions(options =>
-{
-	options.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
-});
+builder.Services.ConfigureJson();
 
 // Add services to the container.
 builder.Services.AddControllers();
