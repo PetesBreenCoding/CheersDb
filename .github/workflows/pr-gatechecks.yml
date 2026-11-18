@@ -46,8 +46,8 @@ jobs:
       - name: 🚦 Code Coverage Gatecheck
         shell: pwsh
         run: |
-          $branchThreshold = 0.15
-          $lineThreshold = 0.30
+          $branchThreshold = 0.35
+          $lineThreshold = 0.65
 
           $branchThresholdStr = $branchThreshold.ToString('P2')
           $lineThresholdStr = $lineThreshold.ToString('P2')

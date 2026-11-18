@@ -22,11 +22,7 @@ builder.Services.AddAuthorizationBuilder()
 		.RequireAuthenticatedUser()
 		.Build());
 
-builder.Services.AddRouting(options =>
-{
-	options.LowercaseUrls = true; 
-	options.LowercaseQueryStrings = true;
-});
+builder.Services.AddConfiguredRouting();
 
 builder.Services.AddConfiguredOpenApi(appSettings);
 

@@ -23,5 +23,18 @@ public static class ServiceCollectionExtensions
 					options.ConfigureOperations(appSettings);
 				});
 		}
+
+		/// <summary>
+		/// Adds routing with lowercase URLs and query strings.
+		/// </summary>
+		/// <returns>The service collection with routing configured.</returns>
+		public IServiceCollection AddConfiguredRouting()
+		{
+			return services.AddRouting(options =>
+			{
+				options.LowercaseUrls = true;
+				options.LowercaseQueryStrings = true;
+			});
+		}
 	}
 }
