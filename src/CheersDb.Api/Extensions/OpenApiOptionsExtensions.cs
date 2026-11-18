@@ -60,7 +60,7 @@ public static class OpenApiOptionsExtensions
 			document.Components.ConfigureSecuritySchemes(appSettings?.OpenApi?.Security);
 
 			if (appSettings?.OpenApi?.Tags?.Count > 0)
-				document.Tags = appSettings.OpenApi.Tags;
+				document.Tags = appSettings.OpenApi.Tags.OrderBy(tag => tag.Name).ToHashSet();
 		});
 	}
 

@@ -41,17 +41,17 @@ public class OpenApiComponentsExtensionsTests
 		components.Headers[HeaderNames.ETag].Description.Should().Be("Indicates the current version of the resource");
 		components.Headers[HeaderNames.ETag].Example.Should().NotBeNull();
 		components.Headers[HeaderNames.ETag].Example!.GetValue<int>().Should().Be(453);
-		components.Headers[HeaderNames.ETag].Schema.Should().BeSameAs(OpenApiSpec.StringSchema);
+		components.Headers[HeaderNames.ETag].Schema.Should().BeSameAs(OpenApiSpec.NumberSchema);
 
 		components.Headers[HeaderNames.RetryAfter].Description.Should().Be("Indicates how many seconds the user agent should wait before making a follow-up request");
 		components.Headers[HeaderNames.RetryAfter].Example.Should().NotBeNull();
 		components.Headers[HeaderNames.RetryAfter].Example!.GetValue<int>().Should().Be(60);
-		components.Headers[HeaderNames.RetryAfter].Schema.Should().BeSameAs(OpenApiSpec.StringSchema);
+		components.Headers[HeaderNames.RetryAfter].Schema.Should().BeSameAs(OpenApiSpec.NumberSchema);
 
 		components.Headers[NonStandardHeaderNames.XRateLimitLimit].Description.Should().Be("Indicates the maximum number of requests that the user is allowed to make in a given amount of time");
 		components.Headers[NonStandardHeaderNames.XRateLimitLimit].Example.Should().NotBeNull();
 		components.Headers[NonStandardHeaderNames.XRateLimitLimit].Example!.GetValue<int>().Should().Be(1000);
-		components.Headers[NonStandardHeaderNames.XRateLimitLimit].Schema.Should().BeSameAs(OpenApiSpec.StringSchema);
+		components.Headers[NonStandardHeaderNames.XRateLimitLimit].Schema.Should().BeSameAs(OpenApiSpec.NumberSchema);
 
 		components.Headers[NonStandardHeaderNames.XRateLimitRemaining].Description.Should().Be("Indicates the number of requests remaining in the current rate limit window");
 		components.Headers[NonStandardHeaderNames.XRateLimitRemaining].Example.Should().NotBeNull();
