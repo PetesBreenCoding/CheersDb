@@ -38,7 +38,7 @@ public class ProducersController : ControllerBase
 				new()
 				{
 					Rel = LinkRels.Self,
-					Href = Url.RouteUrl(nameof(GetProducerDetails), new { id }) ?? string.Empty,
+					Href = Url.RouteUrl(nameof(GetProducerDetails), new { id })!,
 					Method = HttpMethod.Get.ToString()
 				}
 			]
