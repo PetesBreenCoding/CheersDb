@@ -8,15 +8,12 @@ namespace CheersDb.Api.Controllers;
 /// Controller for health status checks in the CheersDb API.
 /// </summary>
 [ApiController]
-[Route("[controller]")]
+[Route("v1/system")]
 [Produces(MediaTypeNames.Application.Json)]
 public class SystemController : ControllerBase
 {
-	/// <summary>
-	/// Get the health status of the API
-	/// </summary>
+	/// <summary>Get the health status of the API</summary>
 	/// <remarks>Returns the current health status of the API and service information</remarks>
-	/// <returns>The health status of the API</returns>
 	[HttpGet("status", Name = nameof(GetStatus))]
 	[ProducesResponseType(typeof(ApiStatusDto), StatusCodes.Status200OK, Description = "Indicates the API is healthy and operational")]
 	public IActionResult GetStatus()

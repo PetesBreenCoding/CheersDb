@@ -13,95 +13,74 @@ jobs:
 
     steps:
       - name: 🎛️ Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 🛠️ Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '11.0.x'
 
-      - name: 🔄 Restore
+      - name: 🛠️ Install .NET Tools
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
+      - name: 🔄 Restore Dependencies
         run: dotnet restore
 
       - name: 👷 Build
         run: dotnet build --no-restore --configuration Release
 
+      - name: 🧪 Run Unit Tests
+        run: dotnet test --no-build --configuration Release --results-directory TestResults --coverage --coverage-output coverage.cobertura.xml --coverage-output-format cobertura
+     
+      - name: 📋 Unit Test Coverage Report
+        shell: pwsh
+        run: |
+          reportgenerator `
+            -reports:TestResults/coverage.cobertura.xml `
+            -targetdir:TestResults/CoverageSummary `
+            -reporttypes:MarkdownSummaryGithub `
+            -title:"Unit Test Code Coverage Report"
+
+          Get-Content ./TestResults/CoverageSummary/SummaryGithub.md | Out-File $env:GITHUB_STEP_SUMMARY -Append
+
+      - name: 🚦 Code Coverage Gatecheck
+        shell: pwsh
+        run: |
+          $branchThreshold = 0.15
+          $lineThreshold = 0.30
+
+          $branchThresholdStr = $branchThreshold.ToString('P2')
+          $lineThresholdStr = $lineThreshold.ToString('P2')
+
+          [xml]$testCoverage = Get-Content .\TestResults\coverage.cobertura.xml
+          $branchRate = [double]$testCoverage.coverage.'branch-rate'
+          $lineRate = [double]$testCoverage.coverage.'line-rate'
+          $branchRateStr = $branchRate.ToString('P2')
+          $lineRateStr = $lineRate.ToString('P2')
+
+          $exitCode = 0
+
+          if ($branchRate -lt $branchThreshold) {
+            Write-Host "::error title=Coverage Check Failed::Branch coverage $branchRateStr is below required $branchThresholdStr"
+            $exitCode = 1
+          }
+          else {
+            Write-Host "::notice title=Coverage Check Passed::✅ Branch coverage $branchRateStr meets required $branchThresholdStr"
+          }
+
+          if ($lineRate -lt $lineThreshold) {
+            Write-Host "::error title=Coverage Check Failed::Line coverage $lineRateStr is below required $lineThresholdStr"
+            $exitCode = 1
+          }
+          else {
+            Write-Host "::notice title=Coverage Check Passed::✅ Line coverage $lineRateStr meets required $lineThresholdStr"
+          }
+
+          exit $exitCode
+
       - name: 🔍 Analyze OpenAPI
-        id: analyze
-        uses: ApyGuard/apyguard_openapi_analysis@v1.0.9
+        uses: pb33f/vacuum-action@v2
         with:
-          file: ${{ github.workspace }}/src/CheersDb.Api/CheersDb.Api.json
-          output_format: json
-       
-      - name: ✏️ Comment on PR
-        uses: actions/github-script@v9
-        env:
-          ANALYSIS: ${{ steps.analyze.outputs.analysis }}
-        with:
-          script: |
-            const analysis = JSON.parse(process.env.ANALYSIS);
-            const categories = analysis.analysis_categories || {};
-            const analytics = analysis.analytics || {};
-          
-            const comment = `## 🔍 OpenAPI Analysis Results
-          
-            **Valid**: ${analysis.is_valid ? '✅' : '❌'}
-            **Total Suggestions**: ${analysis.suggestions ? Object.values(analysis.suggestions).reduce((total, suggestions) => total + suggestions.length, 0) : 0}
-          
-            ### 📊 Basic Metrics
-            - **Operations**: ${analysis.summary ? analysis.summary.operations_count : 0}
-            - **Paths**: ${analysis.summary ? analysis.summary.paths_count : 0}
-            - **Schemas**: ${analysis.summary ? analysis.summary.schemas_count : 0}
-          
-            ### 🎯 Advanced Analytics
-            - **Complexity Score**: ${analytics.complexity_score || 0}
-            - **Maintainability Score**: ${analytics.maintainability_score || 0}/100
-          
-            ### 📋 Analysis Categories
-            - **Security Issues**: ${categories.security || 0}
-            - **Performance Issues**: ${categories.performance || 0}
-            - **Design Pattern Issues**: ${categories.design_patterns || 0}
-            - **Versioning Issues**: ${categories.versioning || 0}
-            - **Documentation Issues**: ${categories.documentation || 0}
-            - **Compliance Issues**: ${categories.compliance || 0}
-            - **Testing Recommendations**: ${categories.testing || 0}
-            - **Monitoring Recommendations**: ${categories.monitoring || 0}
-            - **Code Generation Opportunities**: ${categories.code_generation || 0}
-            - **Governance Issues**: ${categories.governance || 0}
-          
-            ${analysis.suggestions && Object.keys(analysis.suggestions).length > 0 ? 
-              Object.entries(analysis.suggestions).map(([category, suggestions]) => 
-                `### ${category} (${suggestions.length} issues)\n\n${suggestions.slice(0, 3).map(s => `- ${s}`).join('\n')}${suggestions.length > 3 ? `\n- ... and ${suggestions.length - 3} more` : ''}\n`
-              ).join('\n') : 
-              '### ✅ No suggestions found! Your OpenAPI specification looks great! 🎉'
-            }
-          
-            ---
-            *Powered by ApyGuard OpenAPI Analyzer with comprehensive best practices analysis*`;
-            
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
-
-      - name: 🚦 OpenAPI Gatecheck
-        uses: actions/github-script@v9
-        env:
-          ANALYSIS: ${{ steps.analyze.outputs.analysis }}
-        with:
-          script: |
-            const analysis = JSON.parse(process.env.ANALYSIS);
-            const categories = analysis.analysis_categories || {};
-            const issueCount = categories.security + categories.performance + categories.versioning + categories.compliance + categories.governance;
-
-            if (analysis.is_valid && issueCount === 0) {
-              console.log('✔️ OpenAPI analysis passed');
-              process.exit(0);
-            } else {
-              console.log(`Valid: ${analysis.is_valid}`);
-              console.log(`Total blocking issues: ${issueCount}`);
-              console.error('❌ OpenAPI analysis failed');
-              process.exit(1);
-            }
+          openapi_path: src/CheersDb.Api/CheersDb.Api.json
+          minimum_score: 100
+          github_token: ${{ secrets.GITHUB_TOKEN }}

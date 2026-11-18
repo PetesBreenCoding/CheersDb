@@ -27,12 +27,12 @@ public static class OpenApiOptionsExtensions
 		};
 	}
 
-	private static readonly Dictionary<string, object> _responseExamples =
+	private static readonly Dictionary<(string OperationId, int StatusCode), object> _responseExamples =
 		new()
 		{
-			[$"{nameof(ProducersController.GetProducerDetails)}{StatusCodes.Status200OK}"] = GetProducerDetailsDto.GenerateExample(),
-			[$"{nameof(ProducersController.GetProducerDetails)}{StatusCodes.Status400BadRequest}"] = ProblemDetailsDto.GenerateExample(HttpStatusCode.BadRequest),
-			[$"{nameof(ProducersController.GetProducerDetails)}{StatusCodes.Status404NotFound}"] = ProblemDetailsDto.GenerateExample(HttpStatusCode.NotFound)
+			[(nameof(ProducersController.GetProducerDetails), StatusCodes.Status200OK)] = GetProducerDetailsDto.GenerateExample(),
+			[(nameof(ProducersController.GetProducerDetails), StatusCodes.Status400BadRequest)] = ProblemDetailsDto.GenerateExample(HttpStatusCode.BadRequest),
+			[(nameof(ProducersController.GetProducerDetails), StatusCodes.Status404NotFound)] = ProblemDetailsDto.GenerateExample(HttpStatusCode.NotFound)
 		};
 
 	/// <summary>
@@ -51,18 +51,16 @@ public static class OpenApiOptionsExtensions
 			document.Security.Add(GetDefaultSecurityRequirement(appSettings, document));
 
 			if (appSettings?.OpenApi?.Servers?.Count > 0)
-			{
 				document.Servers = appSettings.OpenApi.Servers;
-
-				foreach (var server in document.Servers.Where(srv => !string.IsNullOrEmpty(srv.Url) && !srv.Url.EndsWith(AppSettings.LatestApiVersionUrlAppend)))
-					server.Url += AppSettings.LatestApiVersionUrlAppend;
-			}
 
 			document.Components ??= new OpenApiComponents();
 
 			await document.Components.ConfigureResponsesAsync(context, cancellationToken);
 			document.Components.ConfigureHeaders();
 			document.Components.ConfigureSecuritySchemes(appSettings?.OpenApi?.Security);
+
+			if (appSettings?.OpenApi?.Tags?.Count > 0)
+				document.Tags = appSettings.OpenApi.Tags.OrderBy(tag => tag.Name).ToHashSet();
 		});
 	}
 
@@ -79,17 +77,17 @@ public static class OpenApiOptionsExtensions
 			operation.Responses ??= [];
 			operation.Responses.Add(StatusCodeStrings.Status401Unauthorized, new OpenApiResponse()
 			{
-				Description = "Indicates that the user is not authorized to access the resource"
+				Description = $"Indicates that the user is not authorized to access {operation.OperationId}"
 			});
 
 			operation.Responses.Add(StatusCodeStrings.Status403Forbidden, new OpenApiResponse()
 			{
-				Description = "Indicates that the user is forbidden from accessing the resource"
+				Description = $"Indicates that the user is forbidden from accessing {operation.OperationId}"
 			});
 
 			operation.Responses.Add(StatusCodeStrings.Status429TooManyRequests, new OpenApiResponse()
 			{
-				Description = "Indicates that the user has sent too many requests in a given amount of time",
+				Description = $"Indicates that the user has sent too many requests in a given amount of time to {operation.OperationId}",
 				Headers = new Dictionary<string, IOpenApiHeader>
 				{
 					[HeaderNames.RetryAfter] = OpenApiSpec.RetryAfterHeaderReference
@@ -110,16 +108,19 @@ public static class OpenApiOptionsExtensions
 				okResponseConcrete.Headers.Add(NonStandardHeaderNames.XRateLimitReset, OpenApiSpec.RateLimitResetHeaderReference);
 			}
 
-
 			foreach (var response in operation.Responses)
 			{
-				var responseExampleKey = $"{operation.OperationId}{response.Key}";
-
-				if (!string.IsNullOrEmpty(responseExampleKey) && _responseExamples.TryGetValue(responseExampleKey, out object? example))
+				if (!string.IsNullOrEmpty(operation.OperationId) 
+					&& int.TryParse(response.Key, out int statusCode)
+					&& _responseExamples.TryGetValue((operation.OperationId, statusCode), out object? example))
 				{
-					var content = response.Value.Content?[MediaTypeNames.Application.Json];
-					content?.Examples ??= new Dictionary<string, IOpenApiExample>();
-					content?.Examples?.Add(responseExampleKey, new OpenApiExample { Value = JsonSerializer.SerializeToNode(example) });
+					if (response.Value.Content?.TryGetValue(MediaTypeNames.Application.Json, out var content) == true && content is OpenApiMediaType openApiMediaType)
+					{
+						openApiMediaType.Examples ??= new Dictionary<string, IOpenApiExample>();
+						openApiMediaType.Examples.Add($"{operation.OperationId}{statusCode}", 
+							new OpenApiExample { Value = JsonSerializer.SerializeToNode(example, JsonSerializerOptions.Web) }
+						);
+					}
 				}
 			}
 

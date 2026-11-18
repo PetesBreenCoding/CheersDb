@@ -7,33 +7,26 @@ namespace CheersDb.Api.Dtos;
 /// </summary>
 public class GetProducerDetailsDto
 {
-	/// <summary>
-	/// The id of the producer
-	/// </summary>
+	/// <summary>The id of the producer</summary>
 	/// <example>24</example>
 	public required int Id { get; init; }
 
-	/// <summary>
-	/// The name of the producer
-	/// </summary>
+	/// <summary>The name of the producer</summary>
 	/// <example>Rye River Brewing</example>
 	public required string Name { get; init; }
 
-	/// <summary>
-	/// The revision number of the producer
-	/// </summary>
+	/// <summary>The revision number of the producer</summary>
 	/// <example>7</example>
 	public required int Revision { get; init; }
 
 	/// <summary>
 	/// Links related to the producer, such as a self link to retrieve the producer details
 	/// </summary>
+	/// <example>[{"rel":"self","href":"/producers/30","method":"GET"}]</example>
 	public required List<LinkDto> Links { get; init; }
 
-	/// <summary>
-	/// Generates an example of the GetProducerDetailsDto for documentation purposes
-	/// </summary>
-	/// <returns></returns>
+	/// <summary>Generates an example of the GetProducerDetailsDto for documentation purposes</summary>
+	/// <returns>An example GetProducerDetailsDto instance</returns>
 	public static GetProducerDetailsDto GenerateExample()
 	{
 		return new GetProducerDetailsDto
